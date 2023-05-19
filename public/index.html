@@ -4,13 +4,19 @@
         <title>Store Products</title>
         <style>
             body {
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                height: 100vh;
-                margin: 0;
                 background-color: #f0f0f0;
                 font-family: Arial, sans-serif;
+                margin: 0;
+                padding: 20px;
+                box-sizing: border-box;
+            }
+            form, table {
+                margin-bottom: 20px;
+            }
+            form input, form button {
+                margin-top: 10px;
+                margin-bottom: 10px;
+                display: block;
             }
         </style>
     </head>
@@ -45,7 +51,7 @@
                 const quantity = document.getElementById('quantity').value;
                 const price = document.getElementById('price').value;
                 const expiration_date = document.getElementById('expiration_date').value;
-                fetch('http://localhost:3000/products', {
+                fetch('http://localhost:3002/products', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -57,7 +63,7 @@
                 .catch(error => console.error('Error:', error));
             });
     
-            fetch('http://localhost:3000/products')
+            fetch('http://localhost:3002/products')
                 .then(response => response.json())
                 .then(products => {
                     const table = document.getElementById('products-table');
