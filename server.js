@@ -7,11 +7,10 @@ const port = 3000;
 const db = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: '',  // replace with your root password
-    database: 'myDatabase'  // replace with your database name
+    password: '',  
+    database: 'convince_store'  
 });
 
-// Connect to the MySQL server
 db.connect((err) => {
     if (err) {
         throw err;
@@ -19,7 +18,7 @@ db.connect((err) => {
     console.log('Connected to the MySQL server.');
 });
 
-app.use(express.json()); // This middleware is required to parse JSON bodies from the request
+app.use(express.json());
 
 // GET endpoint for fetching all products
 app.get('/products', (req, res) => {
@@ -35,18 +34,41 @@ app.get('/products', (req, res) => {
 
 // POST endpoint for adding a new product
 app.post('/products', (req, res) => {
-    const sql = 'INSERT INTO products SET ?';
-    const product = req.body;
-    db.query(sql, product, (err, result) => {
+    const { name, quantity, price, expiration_date } = req.body;
+    const sql = 'INSERT INTO products (name, quantity, price, expiration_date) VALUES (?, ?, ?, ?)';
+    db.query(sql, [name, quantity, price, expiration_date], (err, result) => {
         if (err) {
             res.status(500).send(err);
         } else {
-            res.json(result);
+            res.json({ id: result.insertId, ...req.body });
         }
     });
 });
 
-// other endpoints...
+// PUT endpoint for updating a product
+app.put('/products/:id', (req, res) => {
+    const { name, quantity, price, expiration_date } = req.body;
+    const sql = 'UPDATE products SET name = ?, quantity = ?, price = ?, expiration_date = ? WHERE id = ?';
+    db.query(sql, [name, quantity, price, expiration_date, req.params.id], (err, result) => {
+        if (err) {
+            res.status(500).send(err);
+        } else {
+            res.json({ id: req.params.id, ...req.body });
+        }
+    });
+});
+
+// DELETE endpoint for deleting a product
+app.delete('/products/:id', (req, res) => {
+    const sql = 'DELETE FROM products WHERE id = ?';
+    db.query(sql, [req.params.id], (err, result) => {
+        if (err) {
+            res.status(500).send(err);
+        } else {
+            res.sendStatus(204);
+        }
+    });
+});
 
 app.listen(port, () => {
     console.log(`Server listening at http://localhost:${port}`);
