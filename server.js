@@ -1,7 +1,12 @@
 const express = require('express');
-const mysql = require('mysql2');
+const mysql = require('mysql');
 const app = express();
 const port = 3002;
+
+app.use(express.json());
+
+// Serve static files from the public directory
+app.use(express.static('public'));
 
 // MySQL database connection configuration
 const db = mysql.createConnection({
@@ -18,10 +23,6 @@ db.connect((err) => {
     console.log('Connected to the MySQL server.');
 });
 
-app.use(express.json());
-
-// Serve static files from the public directory
-app.use(express.static('public'));
 
 // GET endpoint for fetching all products
 app.get('/products', (req, res) => {
