@@ -1,6 +1,7 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import 'bootstrap-icons/font/bootstrap-icons.css'
-
+import { Link, Outlet, useNavigate } from 'react-router-dom'
+import axios from 'axios'
 function Dashboard() {
 
 	return (
@@ -13,21 +14,21 @@ function Dashboard() {
                 </a>
                 <ul class="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start" id="menu">
                     <li class="nav-item">
-                        <a href="#" class="nav-link text-white align-middle px-0">
-                            <i class="fs-4 bi-speedometer2"></i> <span class="ms-1 d-none d-sm-inline">Dashboard</span>
-                        </a>
+                    <Link to="/" data-bs-toggle="collapse" class="nav-link text-white align-middle px-0">
+                            <i class="fs-4 bi-speedometer2"></i> <span class="ms-1 d-none d-sm-inline">Dashboard</span></Link>
+                       
                     </li>
                     <li>
-                        <a href="#submenu1" data-bs-toggle="collapse" class="nav-link text-white px-0 align-middle">
-                            <i class="fs-4 bi-people"></i> <span class="ms-1 d-none d-sm-inline">Manage Employee</span> </a>
+                    <Link to="/employee" class="nav-link text-white px-0 align-middle">
+                            <i class="fs-4 bi-people"></i> <span class="ms-1 d-none d-sm-inline">Manage Employee</span> </Link>
+                    </li>
+                    <li>
+                    <Link to="profile" class="nav-link px-0 text-white align-middle">
+                            <i class="fs-4 bi-person"></i> <span class="ms-1 d-none d-sm-inline">Profile</span></Link>
                     </li>
                     <li>
                         <a href="#" class="nav-link px-0 text-white align-middle">
-                            <i class="fs-4 bi-person"></i> <span class="ms-1 d-none d-sm-inline">Profile</span></a>
-                    </li>
-                    <li>
-                        <a href="#" class="nav-link px-0 text-white align-middle">
-                            <i class="fs-4 bi-power"></i> <span class="ms-1 d-none d-sm-inline">Profile</span> </a>
+                            <i class="fs-4 bi-power"></i> <span class="ms-1 d-none d-sm-inline">Logout</span> </a>
                     </li>
                 </ul>       
             </div>
@@ -36,6 +37,7 @@ function Dashboard() {
         <div className='p-2 d-flex justify-content-center shadow'>
 						<h4>Employee Management System</h4>						
 					</div>
+                    <Outlet />
         </div>
     </div>
 </div>
