@@ -21,3 +21,10 @@
 .input-text {
     color: gray !important;
 }
+
+.employee_image{
+    width: 50;
+    height: 40px;
+    border-radius: 50%;
+
+}

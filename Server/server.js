@@ -4,7 +4,8 @@ import cors from 'cors'
 import cookieParser from 'cookie-parser'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
-
+import multer from 'multer'
+import path from 'path'
 
 const app = express();
 app.use(cors());
@@ -20,12 +21,34 @@ const con = mysql.createConnection({
   
 })
 
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'public/images')
+    },
+    filename: (req, file, cb) => {
+        cb(null, file.fieldname + "_" + Date.now() + path.extname(file.originalname));
+    }
+})
+
+const upload = multer({
+    storage: storage
+})
+
+
 con.connect(function(err) {
     if(err) {
         console.log("Error in Connection");
     } else {
         console.log("Connected");
     }
+})
+
+app.get('/getEmployee', (req, res) => {
+    const sql = "SELECT * FROM employee";
+    con.query(sql, (err, result) => {
+        if(err) return res.json({Error: "Get employee error in sql"});
+        return res.json({Status: "Success", Result: result})
+    })
 })
 
 app.post('/login', (req, res) => {
@@ -42,6 +65,27 @@ app.post('/login', (req, res) => {
         }
     })
 })
+
+app.post('/create',upload.single('image'), (req, res) => {
+    const sql = "INSERT INTO employee (`name`,`email`,`password`, `address`, `salary`,`image`) VALUES (?)";
+    bcrypt.hash(req.body.password.toString(), 10, (err, hash) => {
+        if(err) return res.json({Error: "Error in hashing password"});
+        const values = [
+            req.body.name,
+            req.body.email,
+            hash,
+            req.body.address,
+            req.body.salary,
+            req.file.filename
+        ]
+        con.query(sql, [values], (err, result) => {
+            if(err) return res.json({Error: "Inside singup query"});
+            return res.json({Status: "Success"});
+        })
+    } )
+})
+
+
 app.listen(8081, ()=> {
     console.log("Running");
 })
@@ -51,18 +95,6 @@ app.listen(8081, ()=> {
 
 /*
 
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, 'public/images')
-    },
-    filename: (req, file, cb) => {
-        cb(null, file.fieldname + "_" + Date.now() + path.extname(file.originalname));
-    }
-})
-
-const upload = multer({
-    storage: storage
-})
 
 
 
