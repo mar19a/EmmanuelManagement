@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import './style.css'
 
 function Login() {
     const [values, setValues] = useState({ email: '', password: '' });
@@ -16,20 +17,20 @@ function Login() {
                 <div className='text-danger'>
                     {error && error}
                 </div>
-                <h2>Login</h2>
+                <h2 className="text-white">Login</h2>
                 <form onSubmit={handleSubmit}>
                     <div className='mb-3'>
-                        <label htmlFor="email"><strong>Email</strong></label>
+                        <label htmlFor="email" className="text-white"><strong>Email</strong></label>
                         <input type="email" placeholder='Enter Email' name='email' 
-                          onChange={e => setValues({...values, email: e.target.value})} className='form-control rounded-0' autoComplete='off'/>
+                          onChange={e => setValues({...values, email: e.target.value})} className='form-control rounded-0 text-white' autoComplete='off'/>
                     </div>
                     <div className='mb-3'>
-                        <label htmlFor="password"><strong>Password</strong></label>
+                        <label htmlFor="password" className="text-white"><strong>Password</strong></label>
                         <input type="password" placeholder='Enter Password' name='password'
-                          onChange={e => setValues({...values, password: e.target.value})} className='form-control rounded-0' />
+                          onChange={e => setValues({...values, password: e.target.value})} className='form-control rounded-0 text-white' />
                     </div>
                     <button type='submit' className='btn btn-success w-100 rounded-0'> Log in</button>
-                    <p>You are agree to our terms and policies</p>
+                    <p className="text-white">You agree to our terms and policies</p>
                 </form>
             </div>
         </div>
