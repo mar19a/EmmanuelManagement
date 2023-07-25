@@ -60,6 +60,15 @@ app.get('/get/:id', (req, res) => {
     })
 })
 
+app.put('/update/:id', (req, res) => {
+    const id = req.params.id;
+    const sql = "UPDATE employee set salary = ? WHERE id = ?";
+    con.query(sql, [req.body.salary, id], (err, result) => {
+        if(err) return res.json({Error: "update employee error in sql"});
+        return res.json({Status: "Success"})
+    })
+})
+
 
 app.post('/login', (req, res) => {
     const sql = "SELECT * FROM users Where email = ? AND  password = ?";
@@ -167,7 +176,7 @@ app.get('/adminCount', (req, res) => {
         if(err) return res.json({Error: "Error in runnig query"});
         return res.json(result);
     })
-})
+}) 
 app.get('/employeeCount', (req, res) => {
     const sql = "Select count(id) as employee from employee";
     con.query(sql, (err, result) => {
