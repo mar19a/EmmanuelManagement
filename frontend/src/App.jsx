@@ -6,6 +6,7 @@ import Employee from './Employee'
 import Profile from './Profile'
 import Home from './Home'
 import AddEmployee from './AddEmployee'
+import EditEmployee from './EditEmployee'
 function App() {
   return (
     <BrowserRouter>
