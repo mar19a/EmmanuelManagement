@@ -85,24 +85,24 @@ app.post('/login', (req, res) => {
     })
 })
 
-app.post('/create',upload.single('image'), (req, res) => {
-    const sql = "INSERT INTO employee (`name`,`email`,`password`, `address`, `salary`,`image`) VALUES (?)";
+app.post('/create', upload.single('image'), (req, res) => {
+    const sql = "INSERT INTO employee (`name`, `email`, `password`, `address`, `salary`, `image`) VALUES (?)";
     bcrypt.hash(req.body.password.toString(), 10, (err, hash) => {
-        if(err) return res.json({Error: "Error in hashing password"});
+        if (err) return res.json({ Error: "Error in hashing password" });
         const values = [
             req.body.name,
             req.body.email,
             hash,
             req.body.address,
             req.body.salary,
-            req.file.filename
-        ]
+            req.file ? req.file.filename : null // Check if file exists
+        ];
         con.query(sql, [values], (err, result) => {
-            if(err) return res.json({Error: "Inside singup query"});
-            return res.json({Status: "Success"});
-        })
-    } )
-})
+            if (err) return res.json({ Error: "Inside signup query" });
+            return res.json({ Status: "Success" });
+        });
+    });
+});
 
 
 app.listen(8081, ()=> {
@@ -112,7 +112,7 @@ app.listen(8081, ()=> {
 
 
 
-/*
+
 
 
 
@@ -231,14 +231,14 @@ app.post('/employeelogin', (req, res) => {
     })
 })
 
-// app.get('/employee/:id', (req, res) => {
-//     const id = req.params.id;
-//     const sql = "SELECT * FROM employee where id = ?";
-//     con.query(sql, [id], (err, result) => {
-//         if(err) return res.json({Error: "Get employee error in sql"});
-//         return res.json({Status: "Success", Result: result})
-//     })
-// })
+ app.get('/employee/:id', (req, res) => {
+     const id = req.params.id;
+     const sql = "SELECT * FROM employee where id = ?";
+     con.query(sql, [id], (err, result) => {
+        if(err) return res.json({Error: "Get employee error in sql"});
+        return res.json({Status: "Success", Result: result})
+    })
+})
 
 
 
@@ -268,4 +268,3 @@ app.post('/create',upload.single('image'), (req, res) => {
 })
 
 
-*/
