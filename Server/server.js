@@ -8,10 +8,14 @@ import multer from 'multer'
 import path from 'path'
 
 const app = express();
-app.use(cors());
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.static('public'));
+
+app.use(cors({
+    origin: 'http://localhost:5173', 
+    credentials: true
+  }));
 
 const con = mysql.createConnection({
     host: "localhost",
@@ -288,7 +292,33 @@ app.post('/employeelogin', (req, res) => {
 })
 
 
-
+// Add profile endpoint
+app.get('/profile', (req, res) => {
+    const token = req.cookies.token;
+    if (!token) {
+      return res.json({ Status: "Error", Error: "Not authenticated" });
+    }
+  
+    jwt.verify(token, "jwt-secret-key", (err, decoded) => {
+      if (err) {
+        return res.json({ Status: "Error", Error: "Failed to authenticate token" });
+      }
+  
+      const userId = decoded.id;
+      const sql = "SELECT email, role FROM users WHERE id = ?";
+      con.query(sql, [userId], (err, result) => {
+        if (err) {
+          return res.json({ Status: "Error", Error: "Error in running query" });
+        }
+        if (result.length > 0) {
+          res.json({ Status: "Success", Profile: result[0] });
+        } else {
+          res.json({ Status: "Error", Error: "Profile not found" });
+        }
+      });
+    });
+  });
+  
 
 app.get('/logout', (req, res) => {
     res.clearCookie('token');

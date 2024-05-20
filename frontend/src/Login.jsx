@@ -38,6 +38,9 @@ function Login() {
         <div className='text-danger'>
           {error && error}
         </div>
+        <div className='text-success'>
+          {success && success}
+        </div>
         <h2 className="text-white">Admin Login</h2>
         <form onSubmit={handleSubmit}>
           <div className='mb-3'>
