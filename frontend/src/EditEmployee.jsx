@@ -30,7 +30,7 @@ function EditEmployee() {
 		axios.put('http://localhost:8081/update/'+id, data)
 		.then(res => {
 			if(res.data.Status === "Success") {
-				navigate('/employee')
+				navigate('/dashboard/employee')
 			}
 		})
 		.catch(err => console.log(err));
