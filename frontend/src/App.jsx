@@ -27,6 +27,7 @@ function App() {
           <Route path="profile" element={<Profile />} />
           <Route path="create" element={<AddEmployee />} />
           <Route path="employeeEdit/:id" element={<EditEmployee />} />
+          <Route path="employeedetail/:id" element={<EmployeeDetail />} />
         </Route>
         <Route path="/employeedetail/:id" element={<EmployeeDetail />} />
       </Routes>

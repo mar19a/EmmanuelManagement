@@ -14,10 +14,13 @@ function EmployeeLogin() {
 
   const handleSubmit = (event) => {
     event.preventDefault();
+    console.log('Submitting login form with values:', values);
     axios.post('http://localhost:8081/employeelogin', values)
       .then(res => {
+        console.log('Login response:', res.data);
         if (res.data.Status === 'Success') {
           const id = res.data.id;
+          console.log('Login successful, navigating to employee detail with id:', id);
           navigate('/employeedetail/' + id);
         } else {
           setError(res.data.Error);
