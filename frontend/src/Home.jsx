@@ -5,24 +5,31 @@ function Home() {
   const [adminCount, setAdminCount] = useState()
   const [employeeCount, setEmployeeCount] = useState()
   const [salary, setSalary] = useState()
+  const [admins, setAdmins] = useState([]); // Add state for admins
 
   useEffect(() => {
     axios.get('http://localhost:8081/adminCount')
-		.then(res => {
-			setAdminCount(res.data[0].admin)
-		}).catch(err => console.log(err));
+      .then(res => {
+        setAdminCount(res.data[0].admin)
+      }).catch(err => console.log(err));
 
     axios.get('http://localhost:8081/employeeCount')
-		.then(res => {
-			setEmployeeCount(res.data[0].employee)
-		}).catch(err => console.log(err));
+      .then(res => {
+        setEmployeeCount(res.data[0].employee)
+      }).catch(err => console.log(err));
 
     axios.get('http://localhost:8081/salary')
-		.then(res => {
-			setSalary(res.data[0].sumOfSalary)
-		}).catch(err => console.log(err));
+      .then(res => {
+        setSalary(res.data[0].sumOfSalary)
+      }).catch(err => console.log(err));
 
-  } , [])
+    // Fetch the list of admins
+    axios.get('http://localhost:8081/getAdmins')
+      .then(res => {
+        setAdmins(res.data); // Store the list of admins in state
+      }).catch(err => console.log(err));
+  }, [])
+
   return (
     <div>
       <div className='p-3 d-flex justify-content-around mt-3'>
@@ -66,10 +73,12 @@ function Home() {
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td>Admin</td>
-              <td>Admin</td>
-            </tr>
+            {admins.map(admin => (
+              <tr key={admin.id}>
+                <td>{admin.email}</td>
+                <td>Admin</td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
