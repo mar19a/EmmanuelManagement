@@ -63,6 +63,22 @@ app.get('/get/:id', (req, res) => {
         return res.json({Status: "Success", Result: result})
     })
 })
+app.get('/logout', (req, res) => {
+    res.clearCookie('token');
+    res.json({ Status: 'Success' });
+  });
+
+  
+app.get('/getAdmins', (req, res) => {
+    const sql = "SELECT id, email FROM users WHERE role = 'admin'";
+    con.query(sql, (err, result) => {
+      if (err) {
+        console.error("Error fetching admins:", err);
+        return res.status(500).json({ Error: "Error fetching admins" });
+      }
+      return res.json(result);
+    });
+  });  
 
 app.put('/update/:id', (req, res) => {
     const id = req.params.id;

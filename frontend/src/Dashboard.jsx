@@ -18,7 +18,7 @@ function Dashboard() {
             navigate('/employeedetail/' + id);
           }
         } else {
-          navigate('/start');
+          navigate('/dashboard');
         }
       })
       .catch(err => {
@@ -30,10 +30,11 @@ function Dashboard() {
   const handleLogout = () => {
     axios.get('http://localhost:8081/logout', { withCredentials: true })
       .then(res => {
+        console.log('Logged out');
         navigate('/start');
       }).catch(err => console.log(err));
   };
-
+  
   return (
     <div className="container-fluid">
       <div className="row flex-nowrap">
