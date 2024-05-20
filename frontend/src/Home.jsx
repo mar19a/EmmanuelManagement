@@ -1,26 +1,31 @@
-import axios from 'axios'
-import React, { useEffect, useState } from 'react'
+import axios from 'axios';
+import React, { useEffect, useState } from 'react';
+import AddAdmin from './AddAdmin'; // Import the AddAdmin component
 
 function Home() {
-  const [adminCount, setAdminCount] = useState()
-  const [employeeCount, setEmployeeCount] = useState()
-  const [salary, setSalary] = useState()
+  const [adminCount, setAdminCount] = useState();
+  const [employeeCount, setEmployeeCount] = useState();
+  const [salary, setSalary] = useState();
   const [admins, setAdmins] = useState([]); // Add state for admins
 
   useEffect(() => {
+    fetchCountsAndAdmins();
+  }, []);
+
+  const fetchCountsAndAdmins = () => {
     axios.get('http://localhost:8081/adminCount')
       .then(res => {
-        setAdminCount(res.data[0].admin)
+        setAdminCount(res.data[0].admin);
       }).catch(err => console.log(err));
 
     axios.get('http://localhost:8081/employeeCount')
       .then(res => {
-        setEmployeeCount(res.data[0].employee)
+        setEmployeeCount(res.data[0].employee);
       }).catch(err => console.log(err));
 
     axios.get('http://localhost:8081/salary')
       .then(res => {
-        setSalary(res.data[0].sumOfSalary)
+        setSalary(res.data[0].sumOfSalary);
       }).catch(err => console.log(err));
 
     // Fetch the list of admins
@@ -28,7 +33,7 @@ function Home() {
       .then(res => {
         setAdmins(res.data); // Store the list of admins in state
       }).catch(err => console.log(err));
-  }, [])
+  };
 
   return (
     <div>
@@ -82,8 +87,13 @@ function Home() {
           </tbody>
         </table>
       </div>
+
+      {/* Add Admin */}
+      <div className='mt-4 px-5 pt-3'>
+        <AddAdmin onAdminAdded={fetchCountsAndAdmins} /> {/* Add the AddAdmin component */}
+      </div>
     </div>
   )
 }
 
-export default Home
+export default Home;
