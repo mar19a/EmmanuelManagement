@@ -31,9 +31,8 @@ function Profile() {
 
   return (
     <div className='px-5 py-3'>
-      <h3>Profile</h3>
+      <h3>Admin Profile</h3>
       <div>
-        <p><strong>Name:</strong> {profileData.name}</p>
         <p><strong>Email:</strong> {profileData.email}</p>
         <p><strong>Role:</strong> {profileData.role}</p>
       </div>
