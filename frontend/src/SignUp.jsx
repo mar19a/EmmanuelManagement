@@ -5,7 +5,7 @@ function SignUp() {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
-    role: 'admin' // Set default role to admin
+    role: 'admin' 
   });
 
   const handleChange = (e) => {

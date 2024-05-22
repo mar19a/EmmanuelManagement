@@ -4,8 +4,9 @@ import { useNavigate, useParams } from 'react-router-dom';
 import './Messages.css';
 
 function AdminMessages() {
-  const { id } = useParams(); 
+  const { id } = useParams();  
   const navigate = useNavigate();
+  const [adminId, setAdminId] = useState(null); 
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [employees, setEmployees] = useState([]);
@@ -13,28 +14,41 @@ function AdminMessages() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    axios.get('http://localhost:8081/getEmployees')
+    axios.get('http://localhost:8081/profile')
       .then(res => {
-        console.log('Employees response:', res.data);
-        setEmployees(res.data);
-        if (res.data.length > 0 && !selectedEmployee) {
-          const firstEmployeeId = res.data[0].id;
-          setSelectedEmployee(firstEmployeeId);
-          localStorage.setItem('selectedEmployee', firstEmployeeId);
-          fetchMessages(id, firstEmployeeId);
+        if (res.data.Status === 'Success') {
+          const adminData = res.data.Profile;
+          setAdminId(adminData.id); 
+          axios.get('http://localhost:8081/getEmployees')
+            .then(res => {
+              console.log('Employees response:', res.data);
+              setEmployees(res.data);
+              if (res.data.length > 0 && !selectedEmployee) {
+                const firstEmployeeId = res.data[0].id;
+                setSelectedEmployee(firstEmployeeId);
+                localStorage.setItem('selectedEmployee', firstEmployeeId);
+                fetchMessages(adminData.id, firstEmployeeId);
+              }
+            })
+            .catch(err => {
+              console.error("Error fetching employees:", err);
+              setError('Error fetching employees');
+            });
+        } else {
+          alert('Error fetching admin profile data');
         }
       })
       .catch(err => {
-        console.error("Error fetching employees:", err);
-        setError('Error fetching employees');
+        console.error('Error fetching admin profile data:', err);
+        alert('Error fetching admin profile data');
       });
-  }, []);
+  }, [selectedEmployee]);
 
   useEffect(() => {
-    if (selectedEmployee) {
-      fetchMessages(id, selectedEmployee);
+    if (selectedEmployee && adminId) {
+      fetchMessages(adminId, selectedEmployee);
     }
-  }, [selectedEmployee, id]);
+  }, [selectedEmployee, adminId]);
 
   const fetchMessages = (adminId, employeeId) => {
     axios.get(`http://localhost:8081/messages/${employeeId}/${adminId}`)
@@ -49,8 +63,12 @@ function AdminMessages() {
   };
 
   const handleSendMessage = () => {
-    if (newMessage.trim() !== '') {
-      const payload = { senderId: id, message: newMessage, recipientId: selectedEmployee };
+    if (newMessage.trim() !== '' && adminId) {
+      const payload = {
+        senderId: adminId,
+        message: newMessage,
+        recipientId: parseInt(selectedEmployee)
+      };
       console.log('Sending message with payload:', payload);
       axios.post('http://localhost:8081/sendMessage', payload)
         .then(res => {
@@ -73,7 +91,7 @@ function AdminMessages() {
     const newEmployeeId = e.target.value;
     setSelectedEmployee(newEmployeeId);
     localStorage.setItem('selectedEmployee', newEmployeeId);
-    fetchMessages(id, newEmployeeId);
+    fetchMessages(adminId, newEmployeeId);
   };
 
   return (
@@ -93,7 +111,7 @@ function AdminMessages() {
             <div className='chatroom'>
               <div className='messages-list'>
                 {messages.map((msg, index) => (
-                  <div key={index} className={`message-item ${msg.senderId == id ? 'sent' : 'received'}`}>
+                  <div key={index} className={`message-item ${msg.senderId === adminId ? 'sent' : 'received'}`}>
                     <strong>{msg.senderName}:</strong> {msg.content}
                     <div className="message-timestamp">
                       {new Date(msg.timestamp).toLocaleString()}
