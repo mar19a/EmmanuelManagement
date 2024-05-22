@@ -13,17 +13,9 @@ function Messages() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    axios.get(`http://localhost:8081/messages/${id}`)
-      .then(res => {
-        setMessages(res.data);
-      })
-      .catch(err => {
-        console.error("Error fetching messages:", err);
-        setError('Error fetching messages');
-      });
-
     axios.get('http://localhost:8081/getAdmins')
       .then(res => {
+        console.log('Admins response:', res.data);
         setAdmins(res.data);
         if (res.data.length > 0) {
           setSelectedAdmin(res.data[0].id);
@@ -33,12 +25,29 @@ function Messages() {
         console.error("Error fetching admins:", err);
         setError('Error fetching admins');
       });
-  }, [id]);
+  }, []);
+
+  useEffect(() => {
+    if (selectedAdmin) {
+      axios.get(`http://localhost:8081/messages/${id}/${selectedAdmin}`)
+        .then(res => {
+          console.log('Messages response:', res.data);
+          setMessages(res.data);
+        })
+        .catch(err => {
+          console.error("Error fetching messages:", err);
+          setError('Error fetching messages');
+        });
+    }
+  }, [id, selectedAdmin]);
 
   const handleSendMessage = () => {
     if (newMessage.trim() !== '') {
-      axios.post('http://localhost:8081/sendMessage', { senderId: id, message: newMessage, recipientId: selectedAdmin })
+      const payload = { senderId: id, message: newMessage, recipientId: selectedAdmin };
+      console.log('Sending message with payload:', payload);
+      axios.post('http://localhost:8081/sendMessage', payload)
         .then(res => {
+          console.log('Send message response:', res.data);
           if (res.data.Status === 'Success') {
             setMessages([...messages, res.data.message]);
             setNewMessage('');
@@ -47,6 +56,7 @@ function Messages() {
           }
         })
         .catch(err => {
+          console.error('Error sending message:', err);
           alert('An error occurred while sending the message.');
         });
     }
@@ -92,26 +102,30 @@ function Messages() {
           <div className='d-flex justify-content-center flex-column align-items-center mt-3'>
             {error && <div className="alert alert-danger">{error}</div>}
             <h2>Messages</h2>
-            <div className='messages-list'>
-              {messages.map((msg, index) => (
-                <div key={index} className='message-item'>
-                  <strong>{msg.senderName}:</strong> {msg.content}
-                </div>
-              ))}
-            </div>
-            <div className='message-form'>
+            <div className='message-form mb-3'>
               <select value={selectedAdmin} onChange={(e) => setSelectedAdmin(e.target.value)} className='form-control mb-3'>
                 {admins.map(admin => (
                   <option key={admin.id} value={admin.id}>{admin.email}</option>
                 ))}
               </select>
-              <textarea 
-                value={newMessage} 
-                onChange={(e) => setNewMessage(e.target.value)} 
-                className='form-control mb-3' 
-                placeholder='Type your message here...'
-              />
-              <button onClick={handleSendMessage} className='btn btn-primary'>Send Message</button>
+            </div>
+            <div className='chatroom'>
+              <div className='messages-list'>
+                {messages.map((msg, index) => (
+                  <div key={index} className={`message-item ${msg.senderId == id ? 'sent' : 'received'}`}>
+                    <strong>{msg.senderName}:</strong> {msg.content}
+                  </div>
+                ))}
+              </div>
+              <div className='message-form'>
+                <textarea
+                  value={newMessage}
+                  onChange={(e) => setNewMessage(e.target.value)}
+                  className='form-control mb-3'
+                  placeholder='Type your message here...'
+                />
+                <button onClick={handleSendMessage} className='btn btn-primary'>Send Message</button>
+              </div>
             </div>
           </div>
         </div>

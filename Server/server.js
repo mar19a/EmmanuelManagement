@@ -83,20 +83,50 @@ app.put('/profile/:id', upload.single('image'), (req, res) => {
 
 app.post('/sendMessage', (req, res) => {
     const { senderId, recipientId, message } = req.body;
-    const sql = "INSERT INTO messages (senderId, recipientId, content) VALUES (?, ?, ?)";
-    con.query(sql, [senderId, recipientId, message], (err, result) => {
-      if (err) {
-        console.error("Error sending message:", err);
-        return res.status(500).json({ Error: "Error sending message" });
-      }
-      return res.json({ Status: "Success", message: { senderId, recipientId, content: message, timestamp: new Date() } });
+
+    console.log('Received sendMessage request:', req.body);
+
+    // Check if sender is an employee and recipient is an admin
+    const checkUsersSql = `
+      SELECT 
+        (SELECT COUNT(*) FROM employee WHERE id = ?) AS senderExists, 
+        (SELECT COUNT(*) FROM users WHERE id = ?) AS recipientExists
+    `;
+    con.query(checkUsersSql, [senderId, recipientId], (err, result) => {
+        if (err) {
+            console.error("Error checking users:", err);
+            return res.status(500).json({ Error: "Error checking users" });
+        }
+
+        console.log('User existence check result:', result);
+
+        if (result[0].senderExists === 0 || result[0].recipientExists === 0) {
+            console.log('Invalid sender or recipient:', result);
+            return res.status(400).json({ Error: "Invalid sender or recipient" });
+        }
+
+        // Insert the message
+        const sql = "INSERT INTO messages (senderId, recipientId, content) VALUES (?, ?, ?)";
+        con.query(sql, [senderId, recipientId, message], (err, result) => {
+            if (err) {
+                console.error("Error sending message:", err);
+                return res.status(500).json({ Error: "Error sending message" });
+            }
+            return res.json({ Status: "Success", message: { senderId, recipientId, content: message, timestamp: new Date() } });
+        });
     });
-  });
-  
-  app.get('/messages/:id', (req, res) => {
+});
+
+app.get('/messages/:id/:adminId', (req, res) => {
     const userId = req.params.id;
-    const sql = "SELECT m.*, u.email as senderName FROM messages m JOIN users u ON m.senderId = u.id WHERE m.recipientId = ? OR m.senderId = ?";
-    con.query(sql, [userId, userId], (err, result) => {
+    const adminId = req.params.adminId;
+    const sql = `
+      SELECT m.*, u.email as senderName 
+      FROM messages m 
+      JOIN users u ON m.senderId = u.id 
+      WHERE (m.recipientId = ? AND m.senderId = ?) OR (m.recipientId = ? AND m.senderId = ?)
+    `;
+    con.query(sql, [userId, adminId, adminId, userId], (err, result) => {
       if (err) {
         console.error("Error fetching messages:", err);
         return res.status(500).json({ Error: "Error fetching messages" });
@@ -104,6 +134,7 @@ app.post('/sendMessage', (req, res) => {
       return res.json(result);
     });
   });
+  
 
 
 app.get('/get/:id', (req, res) => {
