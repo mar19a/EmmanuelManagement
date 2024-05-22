@@ -4,7 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import './Messages.css';
 
 function AdminMessages() {
-  const { id } = useParams();  // Assume adminId is passed as id
+  const { id } = useParams(); 
   const navigate = useNavigate();
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');

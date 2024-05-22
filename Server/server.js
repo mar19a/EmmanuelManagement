@@ -397,6 +397,19 @@ app.post('/employeelogin', (req, res) => {
 })
 
 
+app.get('/getEmployees', (req, res) => {
+    const sql = 'SELECT id, email FROM employee';
+    con.query(sql, (err, result) => {
+      if (err) {
+        console.error("Error fetching employees:", err);
+        return res.status(500).json({ Error: "Error fetching employees" });
+      }
+      return res.json(result);
+    });
+  });
+  
+
+
 // Add profile endpoint
 app.get('/profile', (req, res) => {
     const token = req.cookies.token;
