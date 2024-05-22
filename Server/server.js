@@ -116,6 +116,77 @@ app.post('/sendMessage', (req, res) => {
     });
   });
   
+  app.post('/sendMessageAdmin', (req, res) => {
+    const { senderId, recipientId, message } = req.body;
+  
+    if (!senderId || !recipientId || !message) {
+      return res.status(400).json({ Error: "Missing required fields" });
+    }
+  
+    // Check if sender is an admin and recipient is an employee
+    const checkUsersSql = `
+      SELECT 
+        (SELECT COUNT(*) FROM users WHERE id = ?) AS senderExists, 
+        (SELECT COUNT(*) FROM employee WHERE id = ?) AS recipientExists
+    `;
+    con.query(checkUsersSql, [senderId, recipientId], (err, result) => {
+      if (err) {
+        console.error("Error checking users:", err);
+        return res.status(500).json({ Error: "Error checking users" });
+      }
+  
+      if (result[0].senderExists === 0 || result[0].recipientExists === 0) {
+        return res.status(400).json({ Error: "Invalid sender or recipient" });
+      }
+  
+      // Insert the message
+      const sql = "INSERT INTO messages (senderId, recipientId, content) VALUES (?, ?, ?)";
+      con.query(sql, [senderId, recipientId, message], (err, result) => {
+        if (err) {
+          console.error("Error sending message:", err);
+          return res.status(500).json({ Error: "Error sending message" });
+        }
+        return res.json({ Status: "Success", message: { senderId, recipientId, content: message, timestamp: new Date() } });
+      });
+    });
+  });
+
+  app.post('/sendMessageAdminToEmployee', (req, res) => {
+    const { senderId, recipientId, message } = req.body;
+
+    if (!senderId || !recipientId || !message) {
+        return res.status(400).json({ Error: "Missing required fields" });
+    }
+
+    // Check if sender is an employee and recipient is an admin
+    const checkUsersSql = `
+        SELECT 
+            (SELECT COUNT(*) FROM employee WHERE id = ?) AS senderExists, 
+            (SELECT COUNT(*) FROM users WHERE id = ?) AS recipientExists
+    `;
+    con.query(checkUsersSql, [senderId, recipientId], (err, result) => {
+        if (err) {
+            console.error("Error checking users:", err);
+            return res.status(500).json({ Error: "Error checking users" });
+        }
+
+        if (result[0].senderExists === 0 || result[0].recipientExists === 0) {
+            return res.status(400).json({ Error: "Invalid sender or recipient" });
+        }
+
+        // Insert the message
+        const sql = "INSERT INTO messages (senderId, recipientId, content) VALUES (?, ?, ?)";
+        con.query(sql, [senderId, recipientId, message], (err, result) => {
+            if (err) {
+                console.error("Error sending message:", err);
+                return res.status(500).json({ Error: "Error sending message" });
+            }
+            return res.json({ Status: "Success", message: { senderId, recipientId, content: message, timestamp: new Date() } });
+        });
+    });
+});
+
+
 
 app.get('/messages/:id/:adminId', (req, res) => {
     const userId = req.params.id;
@@ -210,8 +281,8 @@ app.post('/login', (req, res) => {
   });
 
 
-app.post('/create', upload.single('image'), (req, res) => {
-    const sql = "INSERT INTO employee (`name`, `email`, `password`, `address`, `salary`, `image`) VALUES (?)";
+  app.post('/create', upload.single('image'), (req, res) => {
+    const sql = "INSERT INTO employee (`name`,`email`,`password`, `address`, `salary`,`image`) VALUES (?)";
     bcrypt.hash(req.body.password.toString(), 10, (err, hash) => {
         if (err) return res.json({ Error: "Error in hashing password" });
         const values = [
@@ -224,10 +295,22 @@ app.post('/create', upload.single('image'), (req, res) => {
         ];
         con.query(sql, [values], (err, result) => {
             if (err) return res.json({ Error: "Inside signup query" });
-            return res.json({ Status: "Success" });
+
+            // Insert into the 'all' table
+            const insertAllSql = "INSERT INTO `all` (id, email) VALUES (?, ?)";
+            const newEmployeeId = result.insertId; // Get the newly inserted employee's ID
+            con.query(insertAllSql, [newEmployeeId, req.body.email], (err, result) => {
+                if (err) {
+                    console.error("Error inserting into all table:", err);
+                    return res.json({ Error: "Error inserting into all table", Details: err.message });
+                }
+                console.log(`Employee ${req.body.email} signed up successfully and inserted into all table`);
+                return res.json({ Status: "Success" });
+            });
         });
     });
 });
+
 
 
 app.listen(8081, ()=> {
@@ -335,12 +418,12 @@ app.get('/salary', (req, res) => {
 app.post('/signup', (req, res) => {
     console.log("Signup request received");
     const { email, password, role } = req.body;
-  
+
     if (!email || !password) {
       console.error("Email or password not provided");
       return res.json({ Error: "Email and password are required" });
     }
-  
+
     const sql = "INSERT INTO users (email, password, role) VALUES (?)";
     bcrypt.hash(password, 10, (err, hash) => {
       if (err) {
@@ -354,11 +437,22 @@ app.post('/signup', (req, res) => {
           console.error("Error inside signup query:", err);
           return res.json({ Error: "Inside signup query", Details: err.message });
         }
-        console.log(`User ${email} signed up successfully`);
-        return res.json({ Status: "Success" });
+
+        // Insert into the 'all' table
+        const insertAllSql = "INSERT INTO `all` (id, email) VALUES (?, ?)";
+        const newUserId = result.insertId; // Get the newly inserted user's ID
+        con.query(insertAllSql, [newUserId, email], (err, result) => {
+          if (err) {
+            console.error("Error inserting into all table:", err);
+            return res.json({ Error: "Error inserting into all table", Details: err.message });
+          }
+          console.log(`User ${email} signed up successfully and inserted into all table`);
+          return res.json({ Status: "Success" });
+        });
       });
     });
-  });
+});
+
   
 
 
@@ -444,23 +538,35 @@ app.get('/logout', (req, res) => {
     return res.json({Status: "Success"});
 })
 
-app.post('/create',upload.single('image'), (req, res) => {
+app.post('/create', upload.single('image'), (req, res) => {
     const sql = "INSERT INTO employee (`name`,`email`,`password`, `address`, `salary`,`image`) VALUES (?)";
     bcrypt.hash(req.body.password.toString(), 10, (err, hash) => {
-        if(err) return res.json({Error: "Error in hashing password"});
+        if (err) return res.json({ Error: "Error in hashing password" });
         const values = [
             req.body.name,
             req.body.email,
             hash,
             req.body.address,
             req.body.salary,
-            req.file.filename
-        ]
+            req.file ? req.file.filename : null // Check if file exists
+        ];
         con.query(sql, [values], (err, result) => {
-            if(err) return res.json({Error: "Inside singup query"});
-            return res.json({Status: "Success"});
-        })
-    } )
-})
+            if (err) return res.json({ Error: "Inside signup query" });
+
+            // Insert into the 'all' table
+            const insertAllSql = "INSERT INTO `all` (id, email) VALUES (?, ?)";
+            const newEmployeeId = result.insertId; // Get the newly inserted employee's ID
+            con.query(insertAllSql, [newEmployeeId, req.body.email], (err, result) => {
+                if (err) {
+                    console.error("Error inserting into all table:", err);
+                    return res.json({ Error: "Error inserting into all table", Details: err.message });
+                }
+                console.log(`Employee ${req.body.email} signed up successfully and inserted into all table`);
+                return res.json({ Status: "Success" });
+            });
+        });
+    });
+});
+
 
 
