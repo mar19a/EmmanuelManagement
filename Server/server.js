@@ -55,6 +55,32 @@ app.get('/getEmployee', (req, res) => {
     })
 })
 
+app.get('/profile/:id', (req, res) => {
+    const id = req.params.id;
+    const sql = "SELECT id, name, email, address, salary, image FROM employee WHERE id = ?";
+    con.query(sql, [id], (err, result) => {
+        if (err) return res.json({ Error: "Get profile error in SQL" });
+        return res.json({ Status: "Success", Result: result[0] });
+    });
+});
+
+app.put('/profile/:id', upload.single('image'), (req, res) => {
+    const id = req.params.id;
+    const { name, email, address, salary } = req.body;
+    let sql = "UPDATE employee SET name = ?, email = ?, address = ?, salary = ? WHERE id = ?";
+    let values = [name, email, address, salary, id];
+
+    if (req.file) {
+        sql = "UPDATE employee SET name = ?, email = ?, address = ?, salary = ?, image = ? WHERE id = ?";
+        values = [name, email, address, salary, req.file.filename, id];
+    }
+
+    con.query(sql, values, (err, result) => {
+        if (err) return res.json({ Error: "Update profile error in SQL" });
+        return res.json({ Status: "Success" });
+    });
+});
+
 app.get('/get/:id', (req, res) => {
     const id = req.params.id;
     const sql = "SELECT * FROM employee where id = ?";
