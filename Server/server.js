@@ -121,12 +121,17 @@ app.get('/messages/:id/:adminId', (req, res) => {
     const userId = req.params.id;
     const adminId = req.params.adminId;
     const sql = `
-      SELECT m.*, u.email as senderName 
+      SELECT m.*, 
+             CASE 
+               WHEN m.senderId = ? THEN (SELECT email FROM employee WHERE id = ?) 
+               ELSE u.email 
+             END AS senderName 
       FROM messages m 
-      JOIN users u ON m.senderId = u.id 
+      JOIN users u ON m.senderId = u.id OR m.recipientId = u.id
       WHERE (m.recipientId = ? AND m.senderId = ?) OR (m.recipientId = ? AND m.senderId = ?)
+      ORDER BY m.timestamp;
     `;
-    con.query(sql, [userId, adminId, adminId, userId], (err, result) => {
+    con.query(sql, [userId, userId, userId, adminId, adminId, userId], (err, result) => {
       if (err) {
         console.error("Error fetching messages:", err);
         return res.status(500).json({ Error: "Error fetching messages" });
@@ -134,6 +139,8 @@ app.get('/messages/:id/:adminId', (req, res) => {
       return res.json(result);
     });
   });
+  
+  
   
 
 

@@ -9,7 +9,7 @@ function Messages() {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [admins, setAdmins] = useState([]);
-  const [selectedAdmin, setSelectedAdmin] = useState('');
+  const [selectedAdmin, setSelectedAdmin] = useState(localStorage.getItem('selectedAdmin') || '');
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -17,8 +17,11 @@ function Messages() {
       .then(res => {
         console.log('Admins response:', res.data);
         setAdmins(res.data);
-        if (res.data.length > 0) {
-          setSelectedAdmin(res.data[0].id);
+        if (res.data.length > 0 && !selectedAdmin) {
+          const firstAdminId = res.data[0].id;
+          setSelectedAdmin(firstAdminId);
+          localStorage.setItem('selectedAdmin', firstAdminId);
+          fetchMessages(id, firstAdminId);
         }
       })
       .catch(err => {
@@ -29,17 +32,21 @@ function Messages() {
 
   useEffect(() => {
     if (selectedAdmin) {
-      axios.get(`http://localhost:8081/messages/${id}/${selectedAdmin}`)
-        .then(res => {
-          console.log('Messages response:', res.data);
-          setMessages(res.data);
-        })
-        .catch(err => {
-          console.error("Error fetching messages:", err);
-          setError('Error fetching messages');
-        });
+      fetchMessages(id, selectedAdmin);
     }
-  }, [id, selectedAdmin]);
+  }, [selectedAdmin, id]);
+
+  const fetchMessages = (userId, adminId) => {
+    axios.get(`http://localhost:8081/messages/${userId}/${adminId}`)
+      .then(res => {
+        console.log('Messages response:', res.data);
+        setMessages(res.data);
+      })
+      .catch(err => {
+        console.error("Error fetching messages:", err);
+        setError('Error fetching messages');
+      });
+  };
 
   const handleSendMessage = () => {
     if (newMessage.trim() !== '') {
@@ -67,6 +74,13 @@ function Messages() {
       .then(res => {
         navigate('/start');
       }).catch(err => console.log(err));
+  };
+
+  const handleAdminChange = (e) => {
+    const newAdminId = e.target.value;
+    setSelectedAdmin(newAdminId);
+    localStorage.setItem('selectedAdmin', newAdminId);
+    fetchMessages(id, newAdminId);
   };
 
   return (
@@ -103,7 +117,7 @@ function Messages() {
             {error && <div className="alert alert-danger">{error}</div>}
             <h2>Messages</h2>
             <div className='message-form mb-3'>
-              <select value={selectedAdmin} onChange={(e) => setSelectedAdmin(e.target.value)} className='form-control mb-3'>
+              <select value={selectedAdmin} onChange={handleAdminChange} className='form-control mb-3'>
                 {admins.map(admin => (
                   <option key={admin.id} value={admin.id}>{admin.email}</option>
                 ))}
