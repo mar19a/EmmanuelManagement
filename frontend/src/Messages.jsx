@@ -10,29 +10,34 @@ function Messages() {
   const [newMessage, setNewMessage] = useState('');
   const [admins, setAdmins] = useState([]);
   const [selectedAdmin, setSelectedAdmin] = useState('');
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    // Fetch messages for the specific employee ID
     axios.get(`http://localhost:8081/messages/${id}`)
       .then(res => {
         setMessages(res.data);
       })
-      .catch(err => console.log(err));
+      .catch(err => {
+        console.error("Error fetching messages:", err);
+        setError('Error fetching messages');
+      });
 
-    // Fetch list of admins
     axios.get('http://localhost:8081/getAdmins')
       .then(res => {
         setAdmins(res.data);
         if (res.data.length > 0) {
-          setSelectedAdmin(res.data[0].id); // Select the first admin by default
+          setSelectedAdmin(res.data[0].id);
         }
       })
-      .catch(err => console.log(err));
+      .catch(err => {
+        console.error("Error fetching admins:", err);
+        setError('Error fetching admins');
+      });
   }, [id]);
 
   const handleSendMessage = () => {
     if (newMessage.trim() !== '') {
-      axios.post('http://localhost:8081/sendMessage', { message: newMessage, recipientId: selectedAdmin })
+      axios.post('http://localhost:8081/sendMessage', { senderId: id, message: newMessage, recipientId: selectedAdmin })
         .then(res => {
           if (res.data.Status === 'Success') {
             setMessages([...messages, res.data.message]);
@@ -53,8 +58,6 @@ function Messages() {
         navigate('/start');
       }).catch(err => console.log(err));
   };
-
-  
 
   return (
     <div className="container-fluid">
@@ -87,6 +90,7 @@ function Messages() {
             <h4>Employee Management System</h4>
           </div>
           <div className='d-flex justify-content-center flex-column align-items-center mt-3'>
+            {error && <div className="alert alert-danger">{error}</div>}
             <h2>Messages</h2>
             <div className='messages-list'>
               {messages.map((msg, index) => (
