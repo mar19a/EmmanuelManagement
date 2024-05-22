@@ -128,6 +128,9 @@ function Messages() {
                 {messages.map((msg, index) => (
                   <div key={index} className={`message-item ${msg.senderId == id ? 'sent' : 'received'}`}>
                     <strong>{msg.senderName}:</strong> {msg.content}
+                    <div className="message-timestamp">
+                      {new Date(msg.timestamp).toLocaleString()}
+                    </div>
                   </div>
                 ))}
               </div>
