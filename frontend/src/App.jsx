@@ -12,6 +12,7 @@ import EmployeeDetail from './EmployeeDetail';
 import EmployeeLogin from './EmployeeLogin';
 import SignUp from './SignUp';
 import Messages from './Messages';
+import AdminMessages from './AdminMessages';
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
           <Route path="employeeEdit/:id" element={<EditEmployee />} />
           <Route path="employeedetail/:id" element={<EmployeeDetail />} />
           <Route path="messages" element={<Messages />} /> 
+          <Route path="adminMessages" element={<AdminMessages />} /> 
         </Route>
         <Route path="/employeedetail/:id" element={<EmployeeDetail />} />
         <Route path="/employeedetail/:id/messages" element={<Messages />} /> 
