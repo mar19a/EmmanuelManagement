@@ -81,6 +81,33 @@ app.put('/profile/:id', upload.single('image'), (req, res) => {
     });
 });
 
+app.get('/messages/:id', (req, res) => {
+    const userId = req.params.id;
+    const sql = `
+      SELECT m.content, m.senderId, u.email as senderName 
+      FROM messages m 
+      JOIN users u ON m.senderId = u.id 
+      WHERE m.recipientId = ? 
+      OR m.senderId = ? 
+      ORDER BY m.timestamp ASC
+    `;
+    con.query(sql, [userId, userId], (err, result) => {
+      if (err) return res.json({ Error: "Error fetching messages" });
+      return res.json(result);
+    });
+  });
+  
+  app.post('/sendMessage', (req, res) => {
+    const { message, recipientId } = req.body;
+    const senderId = req.userId; // Assumes you have userId from session or token
+    const sql = "INSERT INTO messages (content, senderId, recipientId) VALUES (?, ?, ?)";
+    con.query(sql, [message, senderId, recipientId], (err, result) => {
+      if (err) return res.json({ Error: "Error sending message" });
+      return res.json({ Status: "Success", message: { content: message, senderId, recipientId, senderName: req.userName } });
+    });
+  });
+
+
 app.get('/get/:id', (req, res) => {
     const id = req.params.id;
     const sql = "SELECT * FROM employee where id = ?";

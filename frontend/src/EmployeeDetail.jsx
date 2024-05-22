@@ -13,7 +13,7 @@ function EmployeeDetail() {
 
   useEffect(() => {
     console.log('Fetching employee details for id:', id);
-    axios.get('http://localhost:8081/get/' + id)
+    axios.get(`http://localhost:8081/get/${id}`)
       .then(res => {
         console.log('Employee details response:', res.data);
         if (res.data.Status === 'Success' && res.data.Result.length > 0) {
@@ -61,7 +61,7 @@ function EmployeeDetail() {
       formData.append('image', employee.image);
     }
 
-    axios.put('http://localhost:8081/profile/' + id, formData)
+    axios.put(`http://localhost:8081/profile/${id}`, formData)
       .then(res => {
         if (res.data.Status === 'Success') {
           alert('Profile updated successfully!');
@@ -92,18 +92,18 @@ function EmployeeDetail() {
       <div className="row flex-nowrap">
         <div className="col-auto col-md-3 col-xl-2 px-sm-2 px-0 bg-dark">
           <div className="d-flex flex-column align-items-center align-items-sm-start px-3 pt-2 text-white min-vh-100">
-          <a href="#" onClick={() => navigate('/employeedetail/' + id)} className="d-flex align-items-center pb-3 mb-md-1 mt-md-3 me-md-auto text-white text-decoration-none">
+            <a href="#" onClick={() => navigate(`/employeedetail/${id}`)} className="d-flex align-items-center pb-3 mb-md-1 mt-md-3 me-md-auto text-white text-decoration-none">
               <span className="fs-5 fw-bolder d-none d-sm-inline">Employee Dashboard</span>
             </a>
             <ul className="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start" id="menu">
               <li>
-                <a href="#" onClick={() => navigate('/employeedetail/' + id)} className="nav-link text-white px-0 align-middle">
-                  <i className="fs-4 bi-speedometer2"></i> <span className="ms-1 d-none d-sm-inline">Profile</span> 
+                <a href="#" onClick={() => navigate(`/employeedetail/${id}`)} className="nav-link text-white px-0 align-middle">
+                  <i className="fs-4 bi-speedometer2"></i> <span className="ms-1 d-none d-sm-inline">Profile</span>
                 </a>
               </li>
               <li>
-                <a href="#" onClick={() => navigate('/employeedetail/messages')} className="nav-link text-white px-0 align-middle">
-                  <i className="fs-4 bi-chat"></i> <span className="ms-1 d-none d-sm-inline">Messages</span> 
+                <a href="#" onClick={() => navigate(`/employeedetail/${id}/messages`)} className="nav-link text-white px-0 align-middle">
+                  <i className="fs-4 bi-chat"></i> <span className="ms-1 d-none d-sm-inline">Messages</span>
                 </a>
               </li>
               <li onClick={handleLogout}>
@@ -142,7 +142,7 @@ function EmployeeDetail() {
               </form>
             ) : (
               <>
-                <img src={`http://localhost:8081/images/` + employee.image} alt="" className='empImg' />
+                <img src={`http://localhost:8081/images/${employee.image}`} alt="" className='empImg' />
                 <div className='d-flex align-items-center flex-column mt-5'>
                   <h3>Name: {employee.name}</h3>
                   <h3>Email: {employee.email}</h3>
