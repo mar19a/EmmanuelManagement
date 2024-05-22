@@ -27,7 +27,7 @@ function AdminMessages() {
                                 const firstEmployeeId = res.data[0].id;
                                 setSelectedEmployee(firstEmployeeId);
                                 localStorage.setItem('selectedEmployee', firstEmployeeId);
-                                fetchMessages(firstEmployeeId, adminData.id);
+                                fetchMessages(adminData.id, firstEmployeeId);
                             }
                         })
                         .catch(err => {
@@ -46,12 +46,12 @@ function AdminMessages() {
 
     useEffect(() => {
         if (selectedEmployee && adminId) {
-            fetchMessages(selectedEmployee, adminId);
+            fetchMessages(adminId, selectedEmployee);
         }
     }, [selectedEmployee, adminId]);
 
-    const fetchMessages = (employeeId, adminId) => {
-        axios.get(`http://localhost:8081/messages/${employeeId}/${adminId}`)
+    const fetchMessages = (adminId, employeeId) => {
+        axios.get(`http://localhost:8081/messages/${adminId}/${employeeId}`)
             .then(res => {
                 console.log('Messages response:', res.data);
                 setMessages(res.data);
@@ -65,12 +65,12 @@ function AdminMessages() {
     const handleSendMessage = () => {
         if (newMessage.trim() !== '' && adminId) {
             const payload = {
-                senderId: parseInt(selectedEmployee),
+                senderId: adminId,
                 message: newMessage,
-                recipientId: adminId
+                recipientId: parseInt(selectedEmployee)
             };
             console.log('Sending message with payload:', payload);
-            axios.post('http://localhost:8081/sendMessageAdminToEmployee', payload)
+            axios.post('http://localhost:8081/sendMessage', payload)
                 .then(res => {
                     console.log('Send message response:', res.data);
                     if (res.data.Status === 'Success') {
@@ -91,7 +91,7 @@ function AdminMessages() {
         const newEmployeeId = e.target.value;
         setSelectedEmployee(newEmployeeId);
         localStorage.setItem('selectedEmployee', newEmployeeId);
-        fetchMessages(newEmployeeId, adminId);
+        fetchMessages(adminId, newEmployeeId);
     };
 
     return (

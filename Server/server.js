@@ -83,86 +83,16 @@ app.put('/profile/:id', upload.single('image'), (req, res) => {
 
 app.post('/sendMessage', (req, res) => {
     const { senderId, recipientId, message } = req.body;
-  
-    if (!senderId || !recipientId || !message) {
-      return res.status(400).json({ Error: "Missing required fields" });
-    }
-  
-    // Check if sender is an employee and recipient is an admin
-    const checkUsersSql = `
-      SELECT 
-        (SELECT COUNT(*) FROM employee WHERE id = ?) AS senderExists, 
-        (SELECT COUNT(*) FROM users WHERE id = ?) AS recipientExists
-    `;
-    con.query(checkUsersSql, [senderId, recipientId], (err, result) => {
-      if (err) {
-        console.error("Error checking users:", err);
-        return res.status(500).json({ Error: "Error checking users" });
-      }
-  
-      if (result[0].senderExists === 0 || result[0].recipientExists === 0) {
-        return res.status(400).json({ Error: "Invalid sender or recipient" });
-      }
-  
-      // Insert the message
-      const sql = "INSERT INTO messages (senderId, recipientId, content) VALUES (?, ?, ?)";
-      con.query(sql, [senderId, recipientId, message], (err, result) => {
-        if (err) {
-          console.error("Error sending message:", err);
-          return res.status(500).json({ Error: "Error sending message" });
-        }
-        return res.json({ Status: "Success", message: { senderId, recipientId, content: message, timestamp: new Date() } });
-      });
-    });
-  });
-  
-  app.post('/sendMessageAdmin', (req, res) => {
-    const { senderId, recipientId, message } = req.body;
-  
-    if (!senderId || !recipientId || !message) {
-      return res.status(400).json({ Error: "Missing required fields" });
-    }
-  
-    // Check if sender is an admin and recipient is an employee
-    const checkUsersSql = `
-      SELECT 
-        (SELECT COUNT(*) FROM users WHERE id = ?) AS senderExists, 
-        (SELECT COUNT(*) FROM employee WHERE id = ?) AS recipientExists
-    `;
-    con.query(checkUsersSql, [senderId, recipientId], (err, result) => {
-      if (err) {
-        console.error("Error checking users:", err);
-        return res.status(500).json({ Error: "Error checking users" });
-      }
-  
-      if (result[0].senderExists === 0 || result[0].recipientExists === 0) {
-        return res.status(400).json({ Error: "Invalid sender or recipient" });
-      }
-  
-      // Insert the message
-      const sql = "INSERT INTO messages (senderId, recipientId, content) VALUES (?, ?, ?)";
-      con.query(sql, [senderId, recipientId, message], (err, result) => {
-        if (err) {
-          console.error("Error sending message:", err);
-          return res.status(500).json({ Error: "Error sending message" });
-        }
-        return res.json({ Status: "Success", message: { senderId, recipientId, content: message, timestamp: new Date() } });
-      });
-    });
-  });
-
-  app.post('/sendMessageAdminToEmployee', (req, res) => {
-    const { senderId, recipientId, message } = req.body;
 
     if (!senderId || !recipientId || !message) {
         return res.status(400).json({ Error: "Missing required fields" });
     }
 
-    // Check if sender is an employee and recipient is an admin
+    // Check if both sender and recipient exist in the 'all' table
     const checkUsersSql = `
         SELECT 
-            (SELECT COUNT(*) FROM employee WHERE id = ?) AS senderExists, 
-            (SELECT COUNT(*) FROM users WHERE id = ?) AS recipientExists
+            (SELECT COUNT(*) FROM \`all\` WHERE id = ?) AS senderExists, 
+            (SELECT COUNT(*) FROM \`all\` WHERE id = ?) AS recipientExists
     `;
     con.query(checkUsersSql, [senderId, recipientId], (err, result) => {
         if (err) {
@@ -175,7 +105,7 @@ app.post('/sendMessage', (req, res) => {
         }
 
         // Insert the message
-        const sql = "INSERT INTO messages (senderId, recipientId, content) VALUES (?, ?, ?)";
+        const sql = "INSERT INTO user_messages (senderId, recipientId, content) VALUES (?, ?, ?)";
         con.query(sql, [senderId, recipientId, message], (err, result) => {
             if (err) {
                 console.error("Error sending message:", err);
@@ -188,28 +118,30 @@ app.post('/sendMessage', (req, res) => {
 
 
 
+
+
+
 app.get('/messages/:id/:adminId', (req, res) => {
     const userId = req.params.id;
     const adminId = req.params.adminId;
     const sql = `
       SELECT m.*, 
-             CASE 
-               WHEN m.senderId = ? THEN (SELECT email FROM employee WHERE id = ?) 
-               ELSE u.email 
-             END AS senderName 
-      FROM messages m 
-      JOIN users u ON m.senderId = u.id OR m.recipientId = u.id
+             (SELECT email FROM \`all\` WHERE id = m.senderId) AS senderName 
+      FROM user_messages m 
       WHERE (m.recipientId = ? AND m.senderId = ?) OR (m.recipientId = ? AND m.senderId = ?)
       ORDER BY m.timestamp;
     `;
-    con.query(sql, [userId, userId, userId, adminId, adminId, userId], (err, result) => {
+    con.query(sql, [userId, adminId, adminId, userId], (err, result) => {
       if (err) {
         console.error("Error fetching messages:", err);
         return res.status(500).json({ Error: "Error fetching messages" });
       }
       return res.json(result);
     });
-  });
+});
+
+
+
   
   
   
