@@ -12,8 +12,8 @@ function Messages() {
   const [selectedAdmin, setSelectedAdmin] = useState('');
 
   useEffect(() => {
-    // Fetch messages
-    axios.get('http://localhost:8081/messages')
+    // Fetch messages for the specific employee ID
+    axios.get(`http://localhost:8081/messages/${id}`)
       .then(res => {
         setMessages(res.data);
       })
@@ -28,7 +28,7 @@ function Messages() {
         }
       })
       .catch(err => console.log(err));
-  }, []);
+  }, [id]);
 
   const handleSendMessage = () => {
     if (newMessage.trim() !== '') {
