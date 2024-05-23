@@ -14,10 +14,24 @@ function AdminCalendar() {
         start_date: '',
         end_date: ''
     });
+    const [adminId, setAdminId] = useState(null);
 
     useEffect(() => {
+        fetchAdminProfile();
         fetchEvents();
     }, []);
+
+    const fetchAdminProfile = () => {
+        axios.get('http://localhost:8081/profile')
+            .then(res => {
+                if (res.data.Status === 'Success') {
+                    setAdminId(res.data.Profile.id);
+                } else {
+                    console.error('Error fetching profile data');
+                }
+            })
+            .catch(err => console.error('Error fetching profile data', err));
+    };
 
     const fetchEvents = () => {
         axios.get('http://localhost:8081/events')
@@ -32,12 +46,19 @@ function AdminCalendar() {
     };
 
     const handleAddEvent = () => {
+        if (!adminId) {
+            alert('Admin ID is not available');
+            return;
+        }
+
         const eventToAdd = {
             ...newEvent,
             start_date: new Date(newEvent.start_date).toISOString(),
             end_date: new Date(newEvent.end_date).toISOString(),
-            created_by: 1 // Replace with the actual admin ID or logged-in user ID
+            created_by: adminId
         };
+
+        console.log('Adding Event:', eventToAdd);
 
         axios.post('http://localhost:8081/events', eventToAdd)
             .then(res => {
@@ -49,7 +70,10 @@ function AdminCalendar() {
                     end_date: ''
                 });
             })
-            .catch(err => console.error(err));
+            .catch(err => {
+                console.error('Error adding event:', err);
+                alert('Error adding event. Check the console for details.');
+            });
     };
 
     return (

@@ -119,19 +119,26 @@ app.post('/sendMessage', (req, res) => {
 app.post('/events', (req, res) => {
     const { title, description, start_date, end_date, created_by } = req.body;
 
+    console.log('Received event data:', req.body);
+
     if (!title || !start_date || !end_date || !created_by) {
+        console.error("Error: Missing required fields");
         return res.status(400).json({ Error: "Missing required fields" });
     }
 
+    const formattedStartDate = new Date(start_date).toISOString().slice(0, 19).replace('T', ' ');
+    const formattedEndDate = new Date(end_date).toISOString().slice(0, 19).replace('T', ' ');
+
     const sql = "INSERT INTO calendar_events (title, description, start_date, end_date, created_by) VALUES (?, ?, ?, ?, ?)";
-    con.query(sql, [title, description, start_date, end_date, created_by], (err, result) => {
+    con.query(sql, [title, description, formattedStartDate, formattedEndDate, created_by], (err, result) => {
         if (err) {
             console.error("Error adding event:", err);
-            return res.status(500).json({ Error: "Error adding event" });
+            return res.status(500).json({ Error: "Error adding event", Details: err.message });
         }
-        return res.json({ Status: "Success", event: { id: result.insertId, title, description, start_date, end_date, created_by } });
+        return res.json({ Status: "Success", event: { id: result.insertId, title, description, start_date: formattedStartDate, end_date: formattedEndDate, created_by } });
     });
 });
+
 
 
 app.get('/events', (req, res) => {
