@@ -153,8 +153,21 @@ app.get('/events', (req, res) => {
 });
 
 
+app.get('/users/:id', (req, res) => {
+    const userId = req.params.id;
 
-
+    const sql = "SELECT email FROM `all` WHERE id = ?";
+    con.query(sql, [userId], (err, result) => {
+        if (err) {
+            console.error("Error fetching user email:", err);
+            return res.status(500).json({ Error: "Error fetching user email" });
+        }
+        if (result.length === 0) {
+            return res.status(404).json({ Error: "User not found" });
+        }
+        return res.json({ email: result[0].email });
+    });
+});
 
 
 

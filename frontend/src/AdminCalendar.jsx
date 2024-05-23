@@ -3,8 +3,11 @@ import axios from 'axios';
 import { Calendar, momentLocalizer } from 'react-big-calendar';
 import moment from 'moment';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
+import Modal from 'react-modal';
 
 const localizer = momentLocalizer(moment);
+
+Modal.setAppElement('#root');  
 
 function AdminCalendar() {
     const [events, setEvents] = useState([]);
@@ -14,6 +17,7 @@ function AdminCalendar() {
         start_date: '',
         end_date: ''
     });
+    const [selectedEvent, setSelectedEvent] = useState(null);
     const [adminId, setAdminId] = useState(null);
 
     useEffect(() => {
@@ -76,6 +80,18 @@ function AdminCalendar() {
             });
     };
 
+    const handleEventSelect = (event) => {
+        axios.get(`http://localhost:8081/users/${event.created_by}`)
+            .then(res => {
+                setSelectedEvent({ ...event, creatorEmail: res.data.email });
+            })
+            .catch(err => console.error('Error fetching creator email', err));
+    };
+
+    const closeModal = () => {
+        setSelectedEvent(null);
+    };
+
     return (
         <div className="container mt-5">
             <h2>Calendar</h2>
@@ -113,7 +129,20 @@ function AdminCalendar() {
                 startAccessor="start"
                 endAccessor="end"
                 style={{ height: 500 }}
+                onSelectEvent={handleEventSelect}
             />
+            {selectedEvent && (
+                <Modal
+                    isOpen={!!selectedEvent}
+                    onRequestClose={closeModal}
+                    contentLabel="Event Details"
+                >
+                    <h2>{selectedEvent.title}</h2>
+                    <p>{selectedEvent.description}</p>
+                    <p><strong>Created by:</strong> {selectedEvent.creatorEmail}</p>
+                    <button onClick={closeModal} className="btn btn-secondary">Close</button>
+                </Modal>
+            )}
         </div>
     );
 }
