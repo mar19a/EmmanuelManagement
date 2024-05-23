@@ -4,10 +4,11 @@ import { Calendar, momentLocalizer } from 'react-big-calendar';
 import moment from 'moment';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import Modal from 'react-modal';
+import './AdminCalendar.css';  
 
 const localizer = momentLocalizer(moment);
 
-Modal.setAppElement('#root');  
+Modal.setAppElement('#root'); 
 
 function AdminCalendar() {
     const [events, setEvents] = useState([]);
@@ -135,12 +136,15 @@ function AdminCalendar() {
                 <Modal
                     isOpen={!!selectedEvent}
                     onRequestClose={closeModal}
+                    overlayClassName="modal-overlay"
+                    className="modal-content"
                     contentLabel="Event Details"
                 >
+                    <button onClick={closeModal} className="modal-close-button">&times;</button>
                     <h2>{selectedEvent.title}</h2>
                     <p>{selectedEvent.description}</p>
                     <p><strong>Created by:</strong> {selectedEvent.creatorEmail}</p>
-                    <button onClick={closeModal} className="btn btn-secondary">Close</button>
+                    <button onClick={closeModal} className="btn btn-secondary mt-3">Close</button>
                 </Modal>
             )}
         </div>
