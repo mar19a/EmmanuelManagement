@@ -12,13 +12,15 @@ function Attendance() {
   const [status, setStatus] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({
-    userId: '',
+    email: '',
     clockIn: '',
     clockOut: ''
   });
+  const [employeeEmails, setEmployeeEmails] = useState([]);
 
   useEffect(() => {
     fetchAttendanceData();
+    fetchEmployeeEmails();
   }, []);
 
   const fetchAttendanceData = () => {
@@ -30,6 +32,16 @@ function Attendance() {
       .catch(err => {
         setError('Error fetching attendance data');
         setLoading(false);
+      });
+  };
+
+  const fetchEmployeeEmails = () => {
+    axios.get('http://localhost:8081/employees/emails')
+      .then(res => {
+        setEmployeeEmails(res.data);
+      })
+      .catch(err => {
+        setError('Error fetching employee emails');
       });
   };
 
@@ -71,7 +83,7 @@ function Attendance() {
         setIsModalOpen(false);
         fetchAttendanceData();
         setFormData({
-          userId: '',
+          email: '',
           clockIn: '',
           clockOut: ''
         });
@@ -105,6 +117,7 @@ function Attendance() {
       <table className="table table-striped">
         <thead>
           <tr>
+            <th>Email</th>
             <th>Date</th>
             <th>Clock In</th>
             <th>Clock Out</th>
@@ -113,6 +126,7 @@ function Attendance() {
         <tbody>
           {attendanceData.map((data, index) => (
             <tr key={index}>
+              <td>{data.email}</td>
               <td>{new Date(data.clockIn).toLocaleDateString()}</td>
               <td>{new Date(data.clockIn).toLocaleTimeString()}</td>
               <td>{data.clockOut ? new Date(data.clockOut).toLocaleTimeString() : 'N/A'}</td>
@@ -124,16 +138,42 @@ function Attendance() {
         <h2>Add Attendance</h2>
         <form onSubmit={handleFormSubmit}>
           <div className="form-group">
-            <label htmlFor="userId">User ID</label>
-            <input type="number" name="userId" value={formData.userId} onChange={handleInputChange} className="form-control" required />
+            <label htmlFor="email">Email</label>
+            <select
+              name="email"
+              value={formData.email}
+              onChange={handleInputChange}
+              className="form-control"
+              required
+            >
+              <option value="">Select Email</option>
+              {employeeEmails.map((email, index) => (
+                <option key={index} value={email.email}>
+                  {email.email}
+                </option>
+              ))}
+            </select>
           </div>
           <div className="form-group">
             <label htmlFor="clockIn">Clock In</label>
-            <input type="datetime-local" name="clockIn" value={formData.clockIn} onChange={handleInputChange} className="form-control" required />
+            <input
+              type="datetime-local"
+              name="clockIn"
+              value={formData.clockIn}
+              onChange={handleInputChange}
+              className="form-control"
+              required
+            />
           </div>
           <div className="form-group">
             <label htmlFor="clockOut">Clock Out</label>
-            <input type="datetime-local" name="clockOut" value={formData.clockOut} onChange={handleInputChange} className="form-control" />
+            <input
+              type="datetime-local"
+              name="clockOut"
+              value={formData.clockOut}
+              onChange={handleInputChange}
+              className="form-control"
+            />
           </div>
           <button type="submit" className="btn btn-primary">Submit</button>
           <button type="button" onClick={closeModal} className="btn btn-secondary">Cancel</button>

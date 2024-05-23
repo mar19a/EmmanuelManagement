@@ -477,7 +477,7 @@ app.get('/employees', (req, res) => {
   
   
   app.post('/attendance/clock-in', (req, res) => {
-    const userId = req.user.id; // Assume user id is available in req.user
+    const userId = req.user.id; // assuming req.user contains authenticated user data
     const clockInTime = new Date();
   
     const sql = 'INSERT INTO attendance (user_id, clock_in) VALUES (?, ?)';
@@ -486,12 +486,13 @@ app.get('/employees', (req, res) => {
         console.error('Error clocking in:', err);
         return res.status(500).json({ error: 'Error clocking in' });
       }
-      res.json({ status: 'Clocked In' });
+      return res.json({ status: 'Clocked In' });
     });
   });
+  
 
   app.post('/attendance/clock-out', (req, res) => {
-    const userId = req.user.id;
+    const userId = req.user.id; 
     const clockOutTime = new Date();
   
     const sql = 'UPDATE attendance SET clock_out = ? WHERE user_id = ? AND DATE(clock_in) = CURDATE() AND clock_out IS NULL';
@@ -500,10 +501,10 @@ app.get('/employees', (req, res) => {
         console.error('Error clocking out:', err);
         return res.status(500).json({ error: 'Error clocking out' });
       }
-      res.json({ status: 'Clocked Out' });
+      return res.json({ status: 'Clocked Out' });
     });
   });
-
+  
   app.get('/attendance', (req, res) => {
     const sql = 'SELECT * FROM attendance';
     con.query(sql, (err, result) => {
@@ -529,6 +530,17 @@ app.get('/employees', (req, res) => {
     });
   });
   
+  
+  app.get('/employees/emails', (req, res) => {
+    const sql = 'SELECT email FROM `employee`';
+    con.query(sql, (err, result) => {
+      if (err) {
+        console.error('Error fetching employee emails:', err);
+        return res.status(500).json({ error: 'Error fetching employee emails' });
+      }
+      return res.json(result);
+    });
+  });
   
   
 
