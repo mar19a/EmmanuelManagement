@@ -101,67 +101,103 @@ function EmployeeAttendance() {
   }
 
   return (
-    <div className="container">
-      <h2>My Attendance</h2>
-      <div className="attendance-actions">
-        <button onClick={handleAddAttendance} className="btn btn-primary">Add Attendance</button>
-        {status && <p>{status}</p>}
+    <div className="container-fluid">
+      <div className="row flex-nowrap">
+        <div className="col-auto col-md-3 col-xl-2 px-sm-2 px-0 bg-dark">
+          <div className="d-flex flex-column align-items-center align-items-sm-start px-3 pt-2 text-white min-vh-100">
+            <a href="#" onClick={() => navigate(`/employeedetail/${id}`)} className="d-flex align-items-center pb-3 mb-md-1 mt-md-3 me-md-auto text-white text-decoration-none">
+              <span className="fs-5 fw-bolder d-none d-sm-inline">Employee Dashboard</span>
+            </a>
+            <ul className="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start" id="menu">
+              <li>
+                <a href="#" onClick={() => navigate(`/employeedetail/${id}`)} className="nav-link text-white px-0 align-middle">
+                  <i className="fs-4 bi-speedometer2"></i> <span className="ms-1 d-none d-sm-inline">Profile</span>
+                </a>
+              </li>
+              <li>
+                <a href="#" onClick={() => navigate(`/employeedetail/${id}/messages`)} className="nav-link text-white px-0 align-middle">
+                  <i className="fs-4 bi-chat"></i> <span className="ms-1 d-none d-sm-inline">Messages</span>
+                </a>
+              </li>
+              <li>
+                <a href="#" onClick={() => navigate(`/employeedetail/${id}/attendance`)} className="nav-link text-white px-0 align-middle">
+                  <i className="fs-4 bi-calendar-check"></i> <span className="ms-1 d-none d-sm-inline">Attendance</span>
+                </a>
+              </li>
+              <li onClick={() => navigate('/start')}>
+                <a href="#" className="nav-link px-0 align-middle text-white">
+                  <i className="fs-4 bi-power"></i> <span className="ms-1 d-none d-sm-inline">Logout</span></a>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div className="col p-0 m-0">
+          <div className="p-2 d-flex justify-content-center shadow">
+            <h4>Employee Management System</h4>
+          </div>
+          <div className="container">
+            <h2>My Attendance</h2>
+            <div className="attendance-actions">
+              <button onClick={handleAddAttendance} className="btn btn-primary">Add Attendance</button>
+              {status && <p>{status}</p>}
+            </div>
+            <table className="table table-striped">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Clock In</th>
+                  <th>Clock Out</th>
+                </tr>
+              </thead>
+              <tbody>
+                {attendanceData.length > 0 ? (
+                  attendanceData.map((data, index) => (
+                    <tr key={index}>
+                      <td>{new Date(data.clock_in).toLocaleDateString()}</td>
+                      <td>{new Date(data.clock_in).toLocaleTimeString()}</td>
+                      <td>{data.clock_out ? new Date(data.clock_out).toLocaleTimeString() : 'N/A'}</td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="3">No attendance records found</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+            <Modal isOpen={isModalOpen} onRequestClose={closeModal} className="modal-content" overlayClassName="modal-overlay">
+              <h2>Add Attendance</h2>
+              <form onSubmit={handleFormSubmit}>
+                <div className="form-group">
+                  <label htmlFor="clockIn">Clock In</label>
+                  <input
+                    type="datetime-local"
+                    name="clockIn"
+                    value={formData.clockIn}
+                    onChange={handleInputChange}
+                    className="form-control"
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="clockOut">Clock Out</label>
+                  <input
+                    type="datetime-local"
+                    name="clockOut"
+                    value={formData.clockOut}
+                    onChange={handleInputChange}
+                    className="form-control"
+                  />
+                </div>
+                <button type="submit" className="btn btn-primary">Submit</button>
+                <button type="button" onClick={closeModal} className="btn btn-secondary">Cancel</button>
+              </form>
+            </Modal>
+          </div>
+        </div>
       </div>
-      <table className="table table-striped">
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Clock In</th>
-            <th>Clock Out</th>
-          </tr>
-        </thead>
-        <tbody>
-          {attendanceData.length > 0 ? (
-            attendanceData.map((data, index) => (
-              <tr key={index}>
-                <td>{new Date(data.clockIn).toLocaleDateString()}</td>
-                <td>{new Date(data.clockIn).toLocaleTimeString()}</td>
-                <td>{data.clockOut ? new Date(data.clockOut).toLocaleTimeString() : 'N/A'}</td>
-              </tr>
-            ))
-          ) : (
-            <tr>
-              <td colSpan="3">No attendance records found</td>
-            </tr>
-          )}
-        </tbody>
-      </table>
-      <Modal isOpen={isModalOpen} onRequestClose={closeModal} className="modal-content" overlayClassName="modal-overlay">
-        <h2>Add Attendance</h2>
-        <form onSubmit={handleFormSubmit}>
-          <div className="form-group">
-            <label htmlFor="clockIn">Clock In</label>
-            <input
-              type="datetime-local"
-              name="clockIn"
-              value={formData.clockIn}
-              onChange={handleInputChange}
-              className="form-control"
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="clockOut">Clock Out</label>
-            <input
-              type="datetime-local"
-              name="clockOut"
-              value={formData.clockOut}
-              onChange={handleInputChange}
-              className="form-control"
-            />
-          </div>
-          <button type="submit" className="btn btn-primary">Submit</button>
-          <button type="button" onClick={closeModal} className="btn btn-secondary">Cancel</button>
-        </form>
-      </Modal>
     </div>
   );
 }
 
 export default EmployeeAttendance;
-

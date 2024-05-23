@@ -42,10 +42,9 @@ function App() {
           <Route path="reports" element={<Reports />} />
           <Route path="attendance" element={<Attendance />} />
         </Route>
-        <Route path="/employeedetail/:id" element={<EmployeeDashboardLayout handleLogout={handleLogout} />}>
-          <Route index element={<EmployeeDetail />} />
-          <Route path="messages" element={<EmployeeMessages />} />
-          <Route path="attendance" element={<EmployeeAttendance />} />
+        <Route path="/employeedetail/:id" element={<EmployeeDetail />} />
+        <Route path="/employeedetail/:id/messages" element={<Messages />} />
+        <Route path="/employeedetail/:id/attendance" element={<EmployeeAttendance />} />
       </Routes>
     </BrowserRouter>
   );

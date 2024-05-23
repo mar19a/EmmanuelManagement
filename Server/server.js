@@ -541,17 +541,10 @@ app.get('/employees', (req, res) => {
         console.error('Error fetching attendance data:', err);
         return res.status(500).json({ error: 'Error fetching attendance data' });
       }
-      const groupedData = result.reduce((acc, row) => {
-        const date = new Date(row.clock_in).toLocaleDateString();
-        if (!acc[date]) {
-          acc[date] = [];
-        }
-        acc[date].push(row);
-        return acc;
-      }, {});
-      return res.json(groupedData);
+      return res.json(result);
     });
   });
+  
   
 
   app.post('/attendance/add', (req, res) => {

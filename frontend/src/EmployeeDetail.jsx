@@ -199,7 +199,7 @@ function EmployeeDetail() {
               events={events}
               startAccessor="start"
               endAccessor="end"
-              style={{ height: 500, zIndex: 1 }} // Ensure calendar has lower z-index
+              style={{ height: 500, zIndex: 1 }} 
               onSelectEvent={handleEventSelect}
             />
             {selectedEvent && (
