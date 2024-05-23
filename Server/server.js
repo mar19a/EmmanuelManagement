@@ -507,22 +507,24 @@ app.get('/employees', (req, res) => {
   
   app.get('/attendance', (req, res) => {
     const sql = `
-      SELECT a.email, a.clock_in, a.clock_out
-      FROM attendance a
-      JOIN employee e ON a.email = e.email
+      SELECT email, clock_in, clock_out 
+      FROM attendance 
+      ORDER BY clock_in DESC
     `;
     con.query(sql, (err, result) => {
       if (err) {
         console.error('Error fetching attendance data:', err);
         return res.status(500).json({ error: 'Error fetching attendance data' });
       }
-      // Convert dates to ISO strings
-      const formattedResult = result.map(row => ({
-        ...row,
-        clockIn: row.clock_in ? new Date(row.clock_in).toISOString() : null,
-        clockOut: row.clock_out ? new Date(row.clock_out).toISOString() : null,
-      }));
-      return res.json(formattedResult);
+      const groupedData = result.reduce((acc, row) => {
+        const date = new Date(row.clock_in).toLocaleDateString();
+        if (!acc[date]) {
+          acc[date] = [];
+        }
+        acc[date].push(row);
+        return acc;
+      }, {});
+      return res.json(groupedData);
     });
   });
   

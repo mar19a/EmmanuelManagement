@@ -6,16 +6,20 @@ import Modal from 'react-modal';
 Modal.setAppElement('#root');
 
 function Attendance() {
-  const [attendanceData, setAttendanceData] = useState([]);
+  const [attendanceData, setAttendanceData] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [status, setStatus] = useState(null);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
     clockIn: '',
     clockOut: ''
   });
   const [employeeEmails, setEmployeeEmails] = useState([]);
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [selectedAttendance, setSelectedAttendance] = useState([]);
 
   useEffect(() => {
     fetchAttendanceData();
@@ -25,10 +29,12 @@ function Attendance() {
   const fetchAttendanceData = () => {
     axios.get('http://localhost:8081/attendance')
       .then(res => {
+        console.log('Attendance data from backend:', res.data);
         setAttendanceData(res.data);
         setLoading(false);
       })
       .catch(err => {
+        console.error('Error fetching attendance data:', err);
         setError('Error fetching attendance data');
         setLoading(false);
       });
@@ -37,15 +43,17 @@ function Attendance() {
   const fetchEmployeeEmails = () => {
     axios.get('http://localhost:8081/employees/emails')
       .then(res => {
+        console.log('Employee emails from backend:', res.data);
         setEmployeeEmails(res.data);
       })
       .catch(err => {
+        console.error('Error fetching employee emails:', err);
         setError('Error fetching employee emails');
       });
   };
 
   const handleAddAttendance = () => {
-    setIsModalOpen(true);
+    setIsAddModalOpen(true);
   };
 
   const handleInputChange = (e) => {
@@ -57,7 +65,8 @@ function Attendance() {
     e.preventDefault();
     axios.post('http://localhost:8081/attendance/add', formData)
       .then(res => {
-        setIsModalOpen(false);
+        console.log('Attendance added:', res.data);
+        setIsAddModalOpen(false);
         fetchAttendanceData();
         setFormData({
           email: '',
@@ -66,12 +75,24 @@ function Attendance() {
         });
       })
       .catch(err => {
+        console.error('Error adding attendance:', err);
         setError('Error adding attendance');
       });
   };
 
-  const closeModal = () => {
-    setIsModalOpen(false);
+  const closeAddModal = () => {
+    setIsAddModalOpen(false);
+  };
+
+  const handleDateClick = (date) => {
+    console.log('Clicked on date header:', date);
+    setSelectedDate(date);
+    setSelectedAttendance(attendanceData[date] || []);
+    setIsDetailModalOpen(true);
+  };
+
+  const closeDetailModal = () => {
+    setIsDetailModalOpen(false);
   };
 
   if (loading) {
@@ -87,28 +108,46 @@ function Attendance() {
       <h2>Employee Attendance</h2>
       <div className="attendance-actions">
         <button onClick={handleAddAttendance} className="btn btn-primary">Add Attendance</button>
+        {status && <p>{status}</p>}
       </div>
-      <table className="table table-striped">
-        <thead>
-          <tr>
-            <th>Email</th>
-            <th>Date</th>
-            <th>Clock In</th>
-            <th>Clock Out</th>
-          </tr>
-        </thead>
-        <tbody>
-          {attendanceData.map((data, index) => (
-            <tr key={index}>
-              <td>{data.email}</td>
-              <td>{new Date(data.clockIn).toLocaleDateString()}</td>
-              <td>{new Date(data.clockIn).toLocaleTimeString()}</td>
-              <td>{data.clockOut ? new Date(data.clockOut).toLocaleTimeString() : 'N/A'}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <Modal isOpen={isModalOpen} onRequestClose={closeModal} className="modal-content" overlayClassName="modal-overlay">
+      <div className="agenda">
+        {Object.keys(attendanceData).map(date => (
+          <div key={date} className="agenda-day">
+            <div className="agenda-day-header" onClick={() => handleDateClick(date)}>
+              <h3>{date}</h3>
+            </div>
+          </div>
+        ))}
+      </div>
+      <Modal isOpen={isDetailModalOpen} onRequestClose={closeDetailModal} className="modal-content" overlayClassName="modal-overlay">
+        {selectedDate && (
+          <>
+            <h2>Attendance for {selectedDate}</h2>
+            <table className="table table-striped">
+              <thead>
+                <tr>
+                  <th>Email</th>
+                  <th>Date</th>
+                  <th>Clock In</th>
+                  <th>Clock Out</th>
+                </tr>
+              </thead>
+              <tbody>
+                {selectedAttendance.map((entry, index) => (
+                  <tr key={index}>
+                    <td>{entry.email}</td>
+                    <td>{new Date(entry.clock_in).toLocaleDateString()}</td>
+                    <td>{new Date(entry.clock_in).toLocaleTimeString()}</td>
+                    <td>{entry.clock_out ? new Date(entry.clock_out).toLocaleTimeString() : 'N/A'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <button onClick={closeDetailModal} className="btn btn-secondary">Close</button>
+          </>
+        )}
+      </Modal>
+      <Modal isOpen={isAddModalOpen} onRequestClose={closeAddModal} className="modal-content" overlayClassName="modal-overlay">
         <h2>Add Attendance</h2>
         <form onSubmit={handleFormSubmit}>
           <div className="form-group">
@@ -150,7 +189,7 @@ function Attendance() {
             />
           </div>
           <button type="submit" className="btn btn-primary">Submit</button>
-          <button type="button" onClick={closeModal} className="btn btn-secondary">Cancel</button>
+          <button type="button" onClick={closeAddModal} className="btn btn-secondary">Cancel</button>
         </form>
       </Modal>
     </div>

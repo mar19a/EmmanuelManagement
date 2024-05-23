@@ -6,24 +6,37 @@
     margin-bottom: 20px;
 }
 
+.agenda {
+    margin-top: 20px;
+}
+
+.agenda-day {
+    margin-bottom: 20px;
+}
+
+.agenda-day-header {
+    background-color: #f8f9fa;
+    padding: 10px;
+    border: 1px solid #dee2e6;
+    cursor: pointer;
+}
+
+.agenda-day-body {
+    display: none;
+}
+
+.agenda-day-body.active {
+    display: block;
+}
+
 .table {
     width: 100%;
-    margin-top: 20px;
+    margin-top: 10px;
 }
 
 .table th, .table td {
     text-align: left;
     padding: 10px;
-}
-
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(255, 255, 255, 0.75);
-    z-index: 1000;
 }
 
 .modal-content {
@@ -38,6 +51,16 @@
     border-radius: 8px;
     max-width: 500px;
     width: 100%;
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.75);
+    z-index: 1000;
 }
 
 .modal-close-button {
