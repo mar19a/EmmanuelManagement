@@ -476,7 +476,63 @@ app.get('/employees', (req, res) => {
   });
   
   
+  app.post('/attendance/clock-in', (req, res) => {
+    const userId = req.user.id; // Assume user id is available in req.user
+    const clockInTime = new Date();
+  
+    const sql = 'INSERT INTO attendance (user_id, clock_in) VALUES (?, ?)';
+    con.query(sql, [userId, clockInTime], (err, result) => {
+      if (err) {
+        console.error('Error clocking in:', err);
+        return res.status(500).json({ error: 'Error clocking in' });
+      }
+      res.json({ status: 'Clocked In' });
+    });
+  });
 
+  app.post('/attendance/clock-out', (req, res) => {
+    const userId = req.user.id;
+    const clockOutTime = new Date();
+  
+    const sql = 'UPDATE attendance SET clock_out = ? WHERE user_id = ? AND DATE(clock_in) = CURDATE() AND clock_out IS NULL';
+    con.query(sql, [clockOutTime, userId], (err, result) => {
+      if (err) {
+        console.error('Error clocking out:', err);
+        return res.status(500).json({ error: 'Error clocking out' });
+      }
+      res.json({ status: 'Clocked Out' });
+    });
+  });
+
+  app.get('/attendance', (req, res) => {
+    const sql = 'SELECT * FROM attendance';
+    con.query(sql, (err, result) => {
+      if (err) {
+        console.error('Error fetching attendance data:', err);
+        return res.status(500).json({ error: 'Error fetching attendance data' });
+      }
+      return res.json(result);
+    });
+  });
+  
+
+  app.post('/attendance/add', (req, res) => {
+    const { userId, clockIn, clockOut } = req.body;
+    const sql = 'INSERT INTO attendance (user_id, clock_in, clock_out) VALUES (?, ?, ?)';
+  
+    con.query(sql, [userId, clockIn, clockOut], (err, result) => {
+      if (err) {
+        console.error('Error adding attendance:', err);
+        return res.status(500).json({ error: 'Error adding attendance' });
+      }
+      return res.json({ status: 'Attendance Added' });
+    });
+  });
+  
+  
+  
+
+  
 app.get('/salary', (req, res) => {
     const sql = "Select sum(salary) as sumOfSalary from employee";
     con.query(sql, (err, result) => {

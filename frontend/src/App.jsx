@@ -16,6 +16,7 @@ import AdminMessages from './AdminMessages.jsx';
 import AdminCalendar from './AdminCalendar.jsx';
 import Performance from './Performance';
 import Reports from './Reports';
+import Attendance from './Attendance';
 
 function App() {
   return (
@@ -38,6 +39,7 @@ function App() {
           <Route path="calendar" element={<AdminCalendar />} />
           <Route path="performance" element={<Performance />} />
           <Route path="reports" element={<Reports />} />
+          <Route path="attendance" element={<Attendance />} />
         </Route>
         <Route path="/employeedetail/:id" element={<EmployeeDetail />} />
         <Route path="/employeedetail/:id/messages" element={<Messages />} />
