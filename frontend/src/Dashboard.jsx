@@ -64,6 +64,30 @@ function Dashboard() {
                 <Link to="/dashboard/calendar" className="nav-link px-0 align-middle text-white">
                   <i className="fs-4 bi-calendar"></i> <span className="ms-1 d-none d-sm-inline">Calendar</span></Link>
               </li>
+              <li>
+                <Link to="/dashboard/performance" className="nav-link px-0 align-middle text-white">
+                  <i className="fs-4 bi-bar-chart"></i> <span className="ms-1 d-none d-sm-inline">Performance</span></Link>
+              </li>
+              <li>
+                <Link to="/dashboard/reports" className="nav-link px-0 align-middle text-white">
+                  <i className="fs-4 bi-graph-up"></i> <span className="ms-1 d-none d-sm-inline">Reports</span></Link>
+              </li>
+              <li>
+                <Link to="/dashboard/attendance" className="nav-link px-0 align-middle text-white">
+                  <i className="fs-4 bi-calendar-check"></i> <span className="ms-1 d-none d-sm-inline">Attendance</span></Link>
+              </li>
+              <li>
+                <Link to="/dashboard/documents" className="nav-link px-0 align-middle text-white">
+                  <i className="fs-4 bi-file-earmark"></i> <span className="ms-1 d-none d-sm-inline">Documents</span></Link>
+              </li>
+              <li>
+                <Link to="/dashboard/announcements" className="nav-link px-0 align-middle text-white">
+                  <i className="fs-4 bi-megaphone"></i> <span className="ms-1 d-none d-sm-inline">Announcements</span></Link>
+              </li>
+              <li>
+                <Link to="/dashboard/feedback" className="nav-link px-0 align-middle text-white">
+                  <i className="fs-4 bi-chat-dots"></i> <span className="ms-1 d-none d-sm-inline">Feedback</span></Link>
+              </li>
               <li onClick={handleLogout}>
                 <a href="#" className="nav-link px-0 align-middle text-white">
                   <i className="fs-4 bi-power"></i> <span className="ms-1 d-none d-sm-inline">Logout</span></a>
