@@ -1,7 +1,15 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams, Link } from 'react-router-dom';
-import './EmployeeDetail.css';
+import { useNavigate, useParams } from 'react-router-dom';
+import { Calendar, momentLocalizer } from 'react-big-calendar';
+import moment from 'moment';
+import 'react-big-calendar/lib/css/react-big-calendar.css';
+import Modal from 'react-modal';
+import './EmployeeDetail.css'; // Ensure this imports the CSS
+
+const localizer = momentLocalizer(moment);
+
+Modal.setAppElement('#root'); // Ensure this is set for accessibility
 
 function EmployeeDetail() {
   const { id } = useParams();
@@ -10,12 +18,17 @@ function EmployeeDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [events, setEvents] = useState([]);
+  const [selectedEvent, setSelectedEvent] = useState(null);
 
   useEffect(() => {
-    console.log('Fetching employee details for id:', id);
+    fetchEmployeeDetails();
+    fetchEvents();
+  }, [id]);
+
+  const fetchEmployeeDetails = () => {
     axios.get(`http://localhost:8081/get/${id}`)
       .then(res => {
-        console.log('Employee details response:', res.data);
         if (res.data.Status === 'Success' && res.data.Result.length > 0) {
           setEmployee(res.data.Result[0]);
         } else {
@@ -24,21 +37,40 @@ function EmployeeDetail() {
         setLoading(false);
       })
       .catch(err => {
-        console.log('Error fetching employee details:', err);
         setError('Error fetching employee details');
         setLoading(false);
       });
-  }, [id]);
+  };
+
+  const fetchEvents = () => {
+    axios.get('http://localhost:8081/events')
+      .then(res => {
+        setEvents(res.data.map(event => ({
+          ...event,
+          start: new Date(event.start_date),
+          end: new Date(event.end_date)
+        })));
+      })
+      .catch(err => console.error(err));
+  };
 
   const handleLogout = () => {
-    console.log('Logging out');
     axios.get('http://localhost:8081/logout')
       .then(res => {
-        console.log('Logout response:', res.data);
         navigate('/start');
-      }).catch(err => {
-        console.log('Logout error:', err);
-      });
+      }).catch(err => console.log(err));
+  };
+
+  const handleEventSelect = (event) => {
+    axios.get(`http://localhost:8081/users/${event.created_by}`)
+      .then(res => {
+        setSelectedEvent({ ...event, creatorEmail: res.data.email });
+      })
+      .catch(err => console.error('Error fetching creator email', err));
+  };
+
+  const closeModal = () => {
+    setSelectedEvent(null);
   };
 
   const handleChange = (e) => {
@@ -153,6 +185,32 @@ function EmployeeDetail() {
                   <button className='btn btn-danger' onClick={handleLogout}>Logout</button>
                 </div>
               </>
+            )}
+          </div>
+          <div className='mt-5'>
+            <h2>Calendar</h2>
+            <Calendar
+              localizer={localizer}
+              events={events}
+              startAccessor="start"
+              endAccessor="end"
+              style={{ height: 500, zIndex: 1 }} // Ensure calendar has lower z-index
+              onSelectEvent={handleEventSelect}
+            />
+            {selectedEvent && (
+              <Modal
+                isOpen={!!selectedEvent}
+                onRequestClose={closeModal}
+                overlayClassName="modal-overlay"
+                className="modal-content"
+                contentLabel="Event Details"
+              >
+                <button onClick={closeModal} className="modal-close-button">&times;</button>
+                <h2>{selectedEvent.title}</h2>
+                <p>{selectedEvent.description}</p>
+                <p><strong>Created by:</strong> {selectedEvent.creatorEmail}</p>
+                <button onClick={closeModal} className="btn btn-secondary mt-3">Close</button>
+              </Modal>
             )}
           </div>
         </div>
