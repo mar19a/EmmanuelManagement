@@ -9,7 +9,6 @@ function Attendance() {
   const [attendanceData, setAttendanceData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [status, setStatus] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
@@ -88,7 +87,6 @@ function Attendance() {
       <h2>Employee Attendance</h2>
       <div className="attendance-actions">
         <button onClick={handleAddAttendance} className="btn btn-primary">Add Attendance</button>
-        {status && <p>{status}</p>}
       </div>
       <table className="table table-striped">
         <thead>
