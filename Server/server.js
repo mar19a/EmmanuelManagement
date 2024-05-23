@@ -528,6 +528,30 @@ app.get('/employees', (req, res) => {
     });
   });
   
+  app.get('/attendance/:email', (req, res) => {
+    const { email } = req.params;
+    const sql = `
+      SELECT email, clock_in, clock_out 
+      FROM attendance 
+      WHERE email = ?
+      ORDER BY clock_in DESC
+    `;
+    con.query(sql, [email], (err, result) => {
+      if (err) {
+        console.error('Error fetching attendance data:', err);
+        return res.status(500).json({ error: 'Error fetching attendance data' });
+      }
+      const groupedData = result.reduce((acc, row) => {
+        const date = new Date(row.clock_in).toLocaleDateString();
+        if (!acc[date]) {
+          acc[date] = [];
+        }
+        acc[date].push(row);
+        return acc;
+      }, {});
+      return res.json(groupedData);
+    });
+  });
   
 
   app.post('/attendance/add', (req, res) => {
