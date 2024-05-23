@@ -45,28 +45,6 @@ function Attendance() {
       });
   };
 
-  const handleClockIn = () => {
-    axios.post('http://localhost:8081/attendance/clock-in')
-      .then(res => {
-        setStatus('Clocked In');
-        fetchAttendanceData();
-      })
-      .catch(err => {
-        setError('Error clocking in');
-      });
-  };
-
-  const handleClockOut = () => {
-    axios.post('http://localhost:8081/attendance/clock-out')
-      .then(res => {
-        setStatus('Clocked Out');
-        fetchAttendanceData();
-      })
-      .catch(err => {
-        setError('Error clocking out');
-      });
-  };
-
   const handleAddAttendance = () => {
     setIsModalOpen(true);
   };
@@ -109,8 +87,6 @@ function Attendance() {
     <div className="container">
       <h2>Employee Attendance</h2>
       <div className="attendance-actions">
-        <button onClick={handleClockIn} className="btn btn-success">Clock In</button>
-        <button onClick={handleClockOut} className="btn btn-danger">Clock Out</button>
         <button onClick={handleAddAttendance} className="btn btn-primary">Add Attendance</button>
         {status && <p>{status}</p>}
       </div>
@@ -147,9 +123,9 @@ function Attendance() {
               required
             >
               <option value="">Select Email</option>
-              {employeeEmails.map((email, index) => (
-                <option key={index} value={email.email}>
-                  {email.email}
+              {employeeEmails.map((employee, index) => (
+                <option key={index} value={employee.email}>
+                  {employee.email}
                 </option>
               ))}
             </select>
