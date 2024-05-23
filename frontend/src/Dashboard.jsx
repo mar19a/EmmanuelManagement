@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import { Link, Outlet, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import Performance from './Performance';
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -65,7 +66,7 @@ function Dashboard() {
                   <i className="fs-4 bi-calendar"></i> <span className="ms-1 d-none d-sm-inline">Calendar</span></Link>
               </li>
               <li>
-                <Link to="/dashboard/performance" className="nav-link px-0 align-middle text-white">
+                 <Link to="/dashboard/performance" className="nav-link px-0 align-middle text-white">
                   <i className="fs-4 bi-bar-chart"></i> <span className="ms-1 d-none d-sm-inline">Performance</span></Link>
               </li>
               <li>

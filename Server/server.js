@@ -169,7 +169,46 @@ app.get('/users/:id', (req, res) => {
     });
 });
 
+app.get('/performance', (req, res) => {
+    const sql = `
+      SELECT 
+        e.name AS employeeName, 
+        p.project_completion_rate AS projectCompletionRate,
+        p.client_feedback AS clientFeedback,
+        p.other_metrics AS otherMetrics
+      FROM performance p
+      JOIN employee e ON p.employee_id = e.id
+    `;
+  
+    con.query(sql, (err, result) => {
+      if (err) {
+        console.error("Error fetching performance data:", err);
+        return res.status(500).json({ Error: "Error fetching performance data" });
+      }
+      return res.json(result);
+    });
+  });
 
+  app.post('/performance', (req, res) => {
+    const { employee_id, project_completion_rate, client_feedback, other_metrics } = req.body;
+    
+    if (!employee_id || !project_completion_rate || !client_feedback || !other_metrics) {
+      return res.status(400).json({ Error: "All fields are required" });
+    }
+  
+    const sql = "INSERT INTO performance (employee_id, project_completion_rate, client_feedback, other_metrics) VALUES (?, ?, ?, ?)";
+    const values = [employee_id, project_completion_rate, client_feedback, other_metrics];
+    
+    con.query(sql, values, (err, result) => {
+      if (err) {
+        console.error("Error inserting performance data:", err);
+        return res.status(500).json({ Error: "Error inserting performance data" });
+      }
+      return res.json({ Status: "Success" });
+    });
+  });
+  
+  
 
 app.get('/messages/:id/:adminId', (req, res) => {
     const userId = req.params.id;
@@ -389,6 +428,18 @@ app.get('/employeeCount', (req, res) => {
         return res.json(result);
     })
 })
+
+app.get('/employees', (req, res) => {
+    const sql = "SELECT id, name FROM employee";
+    con.query(sql, (err, result) => {
+      if (err) {
+        console.error("Error fetching employees:", err);
+        return res.status(500).json({ Error: "Error fetching employees" });
+      }
+      return res.json(result);
+    });
+  });
+  
 
 app.get('/salary', (req, res) => {
     const sql = "Select sum(salary) as sumOfSalary from employee";
