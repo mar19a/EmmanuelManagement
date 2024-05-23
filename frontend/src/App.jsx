@@ -15,6 +15,7 @@ import Messages from './Messages.jsx';
 import AdminMessages from './AdminMessages.jsx';
 import AdminCalendar from './AdminCalendar.jsx';
 import Performance from './Performance';
+import Reports from './Reports';
 
 function App() {
   return (
@@ -36,6 +37,7 @@ function App() {
           <Route path="adminMessages" element={<AdminMessages />} />
           <Route path="calendar" element={<AdminCalendar />} />
           <Route path="performance" element={<Performance />} />
+          <Route path="reports" element={<Reports />} />
         </Route>
         <Route path="/employeedetail/:id" element={<EmployeeDetail />} />
         <Route path="/employeedetail/:id/messages" element={<Messages />} />

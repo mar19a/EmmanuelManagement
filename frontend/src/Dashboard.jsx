@@ -70,8 +70,8 @@ function Dashboard() {
                   <i className="fs-4 bi-bar-chart"></i> <span className="ms-1 d-none d-sm-inline">Performance</span></Link>
               </li>
               <li>
-                <Link to="/dashboard/reports" className="nav-link px-0 align-middle text-white">
-                  <i className="fs-4 bi-graph-up"></i> <span className="ms-1 d-none d-sm-inline">Reports</span></Link>
+              <Link to="/dashboard/reports" className="nav-link px-0 align-middle text-white">
+    <i className="fs-4 bi-graph-up"></i> <span className="ms-1 d-none d-sm-inline">Reports</span></Link>
               </li>
               <li>
                 <Link to="/dashboard/attendance" className="nav-link px-0 align-middle text-white">

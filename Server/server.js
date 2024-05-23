@@ -440,6 +440,42 @@ app.get('/employees', (req, res) => {
     });
   });
   
+  app.get('/reports/performance', (req, res) => {
+    const sql = `
+      SELECT e.name AS employeeName, p.project_completion_rate AS projectCompletionRate, 
+             p.client_feedback AS clientFeedback, p.other_metrics AS otherMetrics
+      FROM performance p
+      JOIN employee e ON p.employee_id = e.id
+    `;
+    con.query(sql, (err, result) => {
+      if (err) {
+        console.error("Error fetching performance report data:", err);
+        return res.status(500).json({ Error: "Error fetching performance report data" });
+      }
+      return res.json(result);
+    });
+  });
+
+  app.put('/reports/performance/:id', (req, res) => {
+    const { id } = req.params;
+    const { projectCompletionRate, clientFeedback, otherMetrics } = req.body;
+  
+    const sql = `
+      UPDATE performance 
+      SET project_completion_rate = ?, client_feedback = ?, other_metrics = ? 
+      WHERE id = ?
+    `;
+  
+    con.query(sql, [projectCompletionRate, clientFeedback, otherMetrics, id], (err, result) => {
+      if (err) {
+        console.error("Error updating performance data:", err);
+        return res.status(500).json({ Error: "Error updating performance data" });
+      }
+      return res.json({ Status: "Success" });
+    });
+  });
+  
+  
 
 app.get('/salary', (req, res) => {
     const sql = "Select sum(salary) as sumOfSalary from employee";
