@@ -1,18 +1,19 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import Login from './Login';
-import Dashboard from './Dashboard';
-import Employee from './Employee';
-import Profile from './Profile';
-import Home from './Home';
-import AddEmployee from './AddEmployee';
-import EditEmployee from './EditEmployee';
-import Start from './Start';
-import EmployeeDetail from './EmployeeDetail';
-import EmployeeLogin from './EmployeeLogin';
-import SignUp from './SignUp';
-import Messages from './Messages';
-import AdminMessages from './AdminMessages';
+import Login from './Login.jsx';
+import Dashboard from './Dashboard.jsx';
+import Employee from './Employee.jsx';
+import Profile from './Profile.jsx';
+import Home from './Home.jsx';
+import AddEmployee from './AddEmployee.jsx';
+import EditEmployee from './EditEmployee.jsx';
+import Start from './Start.jsx';
+import EmployeeDetail from './EmployeeDetail.jsx';
+import EmployeeLogin from './EmployeeLogin.jsx';
+import SignUp from './SignUp.jsx';
+import Messages from './Messages.jsx';
+import AdminMessages from './AdminMessages.jsx';
+import AdminCalendar from './AdminCalendar.jsx'; // Import the new component
 
 function App() {
   return (
@@ -30,11 +31,12 @@ function App() {
           <Route path="create" element={<AddEmployee />} />
           <Route path="employeeEdit/:id" element={<EditEmployee />} />
           <Route path="employeedetail/:id" element={<EmployeeDetail />} />
-          <Route path="messages" element={<Messages />} /> 
-          <Route path="adminMessages" element={<AdminMessages />} /> 
+          <Route path="messages" element={<Messages />} />
+          <Route path="adminMessages" element={<AdminMessages />} />
+          <Route path="calendar" element={<AdminCalendar />} /> {/* Add the new route */}
         </Route>
         <Route path="/employeedetail/:id" element={<EmployeeDetail />} />
-        <Route path="/employeedetail/:id/messages" element={<Messages />} /> 
+        <Route path="/employeedetail/:id/messages" element={<Messages />} />
       </Routes>
     </BrowserRouter>
   );

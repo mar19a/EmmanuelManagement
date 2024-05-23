@@ -32,7 +32,14 @@ function AdminCalendar() {
     };
 
     const handleAddEvent = () => {
-        axios.post('http://localhost:8081/events', newEvent)
+        const eventToAdd = {
+            ...newEvent,
+            start_date: new Date(newEvent.start_date).toISOString(),
+            end_date: new Date(newEvent.end_date).toISOString(),
+            created_by: 1 // Replace with the actual admin ID or logged-in user ID
+        };
+
+        axios.post('http://localhost:8081/events', eventToAdd)
             .then(res => {
                 fetchEvents();
                 setNewEvent({
