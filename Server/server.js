@@ -59,7 +59,7 @@ const storage = multer.diskStorage({
   
   const upload = multer({ storage: storage });
 
-  app.use('/uploads', express.static('uploads'));
+  app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
   app.get('/documents', (req, res) => {
     const sql = `
