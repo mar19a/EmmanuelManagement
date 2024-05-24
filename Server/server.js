@@ -1,11 +1,19 @@
-import express from 'express'
-import mysql from "mysql"
-import cors from 'cors'
-import cookieParser from 'cookie-parser'
-import bcrypt from 'bcrypt'
-import jwt from 'jsonwebtoken'
-import multer from 'multer'
-import path from 'path'
+import express from 'express';
+import mysql from 'mysql';
+import cors from 'cors';
+import cookieParser from 'cookie-parser';
+import bodyParser from 'body-parser';
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+import multer from 'multer';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+import fs from 'fs';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
 
 const app = express();
 app.use(cookieParser());
@@ -17,6 +25,8 @@ app.use(cors({
     credentials: true
   }));
 
+  app.use(bodyParser.json());
+
 const con = mysql.createConnection({
     host: "localhost",
     user: "root",
@@ -25,20 +35,6 @@ const con = mysql.createConnection({
   
 })
 
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, 'public/images')
-    },
-    filename: (req, file, cb) => {
-        cb(null, file.fieldname + "_" + Date.now() + path.extname(file.originalname));
-    }
-})
-
-const upload = multer({
-    storage: storage
-})
-
-
 con.connect(function(err) {
     if(err) {
         console.log("Error in Connection");
@@ -46,6 +42,53 @@ con.connect(function(err) {
         console.log("Connected");
     }
 })
+
+const uploadDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir);
+}
+
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+      cb(null, 'uploads/');
+    },
+    filename: (req, file, cb) => {
+      cb(null, Date.now() + path.extname(file.originalname));
+    }
+  });
+  
+  const upload = multer({ storage: storage });
+
+  app.use('/uploads', express.static('uploads'));
+
+  app.get('/documents', (req, res) => {
+    const sql = `
+      SELECT documents.*, employee.name AS employeeName 
+      FROM documents 
+      JOIN employee ON documents.employee_id = employee.id
+    `;
+    con.query(sql, (err, result) => {
+      if (err) {
+        console.error('Error fetching documents:', err);
+        return res.status(500).json({ error: 'Error fetching documents' });
+      }
+      res.json(result);
+    });
+  });
+
+  app.post('/documents', upload.single('file'), (req, res) => {
+    const { title, content, employeeId } = req.body;
+    const fileUrl = req.file ? `/uploads/${req.file.filename}` : null;
+    const sql = 'INSERT INTO documents (title, content, employee_id, file_url) VALUES (?, ?, ?, ?)';
+    con.query(sql, [title, content, employeeId, fileUrl], (err, result) => {
+      if (err) {
+        console.error('Error adding document:', err);
+        return res.status(500).json({ error: 'Error adding document' });
+      }
+      res.json({ status: 'Document Added' });
+    });
+  });
+
 
 app.get('/getEmployee', (req, res) => {
     const sql = "SELECT * FROM employee";
@@ -429,6 +472,8 @@ app.get('/employeeCount', (req, res) => {
     })
 })
 
+
+
 app.get('/employees', (req, res) => {
     const sql = 'SELECT id, name, email FROM employee';
     con.query(sql, (err, result) => {
@@ -572,20 +617,7 @@ app.get('/employees', (req, res) => {
     });
   });
   
-  app.post('/documents', (req, res) => {
-    const { title, content, employeeId } = req.body;
-    const sql = `
-      INSERT INTO documents (title, content, employee_id) 
-      VALUES (?, ?, ?)
-    `;
-    con.query(sql, [title, content, employeeId], (err, result) => {
-      if (err) {
-        console.error('Error adding document:', err);
-        return res.status(500).json({ error: 'Error adding document' });
-      }
-      res.json({ status: 'Document added successfully' });
-    });
-  });
+
   
 
   
@@ -689,25 +721,6 @@ app.get('/employee/:id/documents', (req, res) => {
     });
   });
   
-
-  app.get('/documents', (req, res) => {
-    const sql = `
-      SELECT documents.*, employees.name AS employeeName 
-      FROM documents 
-      JOIN employees ON documents.employee_id = employees.id
-    `;
-    con.query(sql, (err, result) => {
-      if (err) {
-        console.error('Error fetching documents:', err);
-        return res.status(500).json({ error: 'Error fetching documents' });
-      }
-      res.json(result);
-    });
-  });
-  
-  
-
-
 app.get('/getEmployees', (req, res) => {
     const sql = 'SELECT id, email FROM employee';
     con.query(sql, (err, result) => {

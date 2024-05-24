@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Modal from 'react-modal';
-import { useDropzone } from 'react-dropzone';
 import './AdminDocuments.css';
 
 Modal.setAppElement('#root');
@@ -13,9 +12,9 @@ function AdminDocuments() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
-    content: ''
+    content: '',
+    file: null
   });
-  const [file, setFile] = useState(null);
 
   useEffect(() => {
     fetchEmployees();
@@ -51,24 +50,27 @@ function AdminDocuments() {
     setFormData({ ...formData, [name]: value });
   };
 
+  const handleFileChange = (e) => {
+    setFormData({ ...formData, file: e.target.files[0] });
+  };
+
   const handleFormSubmit = (e) => {
     e.preventDefault();
-    const uploadData = new FormData();
-    uploadData.append('title', formData.title);
-    uploadData.append('content', formData.content);
-    uploadData.append('employeeId', selectedEmployee);
-    if (file) {
-      uploadData.append('file', file);
+    const data = new FormData();
+    data.append('title', formData.title);
+    data.append('content', formData.content);
+    data.append('employeeId', selectedEmployee);
+    if (formData.file) {
+      data.append('file', formData.file);
     }
-
-    axios.post('http://localhost:8081/documents', uploadData)
+    axios.post('http://localhost:8081/documents', data)
       .then(res => {
         setIsModalOpen(false);
         setFormData({
           title: '',
-          content: ''
+          content: '',
+          file: null
         });
-        setFile(null);
         setSelectedEmployee('');
         fetchDocuments();
       })
@@ -76,12 +78,6 @@ function AdminDocuments() {
         console.error('Error uploading document:', err);
       });
   };
-
-  const onDrop = (acceptedFiles) => {
-    setFile(acceptedFiles[0]);
-  };
-
-  const { getRootProps, getInputProps } = useDropzone({ onDrop });
 
   const closeModal = () => {
     setIsModalOpen(false);
@@ -110,8 +106,8 @@ function AdminDocuments() {
           <tr>
             <th>Title</th>
             <th>Content</th>
-            <th>File</th>
             <th>Shared with</th>
+            <th>File</th>
           </tr>
         </thead>
         <tbody>
@@ -119,8 +115,8 @@ function AdminDocuments() {
             <tr key={doc.id}>
               <td>{doc.title}</td>
               <td>{doc.content}</td>
-              <td>{doc.fileUrl ? <a href={doc.fileUrl} download>Download</a> : 'No File'}</td>
               <td>{doc.employeeName}</td>
+              <td>{doc.file_url ? <a href={doc.file_url} target="_blank" rel="noopener noreferrer">View File</a> : 'No File'}</td>
             </tr>
           ))}
         </tbody>
@@ -151,11 +147,12 @@ function AdminDocuments() {
           </div>
           <div className="form-group">
             <label htmlFor="file">File</label>
-            <div {...getRootProps({ className: 'dropzone' })}>
-              <input {...getInputProps()} />
-              <p>Drag 'n' drop a file here, or click to select a file</p>
-            </div>
-            {file && <p>Selected file: {file.name}</p>}
+            <input
+              type="file"
+              name="file"
+              onChange={handleFileChange}
+              className="form-control"
+            />
           </div>
           <button type="submit" className="btn btn-primary">Submit</button>
           <button type="button" onClick={closeModal} className="btn btn-secondary">Cancel</button>
