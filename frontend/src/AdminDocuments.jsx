@@ -9,12 +9,14 @@ function AdminDocuments() {
   const [employees, setEmployees] = useState([]);
   const [documents, setDocuments] = useState([]);
   const [selectedEmployee, setSelectedEmployee] = useState('');
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
     content: '',
     file: null
   });
+  const [selectedDocument, setSelectedDocument] = useState(null);
 
   useEffect(() => {
     fetchEmployees();
@@ -42,7 +44,12 @@ function AdminDocuments() {
   };
 
   const handleAddDocument = () => {
-    setIsModalOpen(true);
+    setIsAddModalOpen(true);
+  };
+
+  const handleViewDocument = (document) => {
+    setSelectedDocument(document);
+    setIsViewModalOpen(true);
   };
 
   const handleInputChange = (e) => {
@@ -65,7 +72,7 @@ function AdminDocuments() {
     }
     axios.post('http://localhost:8081/documents', data)
       .then(res => {
-        setIsModalOpen(false);
+        setIsAddModalOpen(false);
         setFormData({
           title: '',
           content: '',
@@ -79,8 +86,13 @@ function AdminDocuments() {
       });
   };
 
-  const closeModal = () => {
-    setIsModalOpen(false);
+  const closeAddModal = () => {
+    setIsAddModalOpen(false);
+  };
+
+  const closeViewModal = () => {
+    setIsViewModalOpen(false);
+    setSelectedDocument(null);
   };
 
   return (
@@ -107,7 +119,7 @@ function AdminDocuments() {
             <th>Title</th>
             <th>Content</th>
             <th>Shared with</th>
-            <th>File</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -116,12 +128,14 @@ function AdminDocuments() {
               <td>{doc.title}</td>
               <td>{doc.content}</td>
               <td>{doc.employeeName}</td>
-              <td>{doc.file_url ? <a href={doc.file_url} target="_blank" rel="noopener noreferrer">View File</a> : 'No File'}</td>
+              <td>
+                <button onClick={() => handleViewDocument(doc)} className="btn btn-secondary">View File</button>
+              </td>
             </tr>
           ))}
         </tbody>
       </table>
-      <Modal isOpen={isModalOpen} onRequestClose={closeModal} className="modal-content" overlayClassName="modal-overlay">
+      <Modal isOpen={isAddModalOpen} onRequestClose={closeAddModal} className="modal-content" overlayClassName="modal-overlay">
         <h2>Add Document</h2>
         <form onSubmit={handleFormSubmit}>
           <div className="form-group">
@@ -155,8 +169,22 @@ function AdminDocuments() {
             />
           </div>
           <button type="submit" className="btn btn-primary">Submit</button>
-          <button type="button" onClick={closeModal} className="btn btn-secondary">Cancel</button>
+          <button type="button" onClick={closeAddModal} className="btn btn-secondary">Cancel</button>
         </form>
+      </Modal>
+      <Modal isOpen={isViewModalOpen} onRequestClose={closeViewModal} className="modal-content" overlayClassName="modal-overlay">
+        {selectedDocument && (
+          <>
+            <h2>{selectedDocument.title}</h2>
+            <p>{selectedDocument.content}</p>
+            {selectedDocument.file_url ? (
+              <iframe src={`http://localhost:8081${selectedDocument.file_url}`} width="100%" height="400px" title="Document File"></iframe>
+            ) : (
+              <p>No file attached</p>
+            )}
+            <button onClick={closeViewModal} className="btn btn-secondary mt-3">Close</button>
+          </>
+        )}
       </Modal>
     </div>
   );
