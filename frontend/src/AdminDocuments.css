@@ -1,3 +1,4 @@
+
 .container {
     padding: 20px;
   }
@@ -34,5 +35,14 @@
     border-radius: 8px;
     max-width: 500px;
     width: 100%;
+  }
+  
+  .dropzone {
+    border: 2px dashed #cccccc;
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    margin-top: 10px;
   }
   
