@@ -477,7 +477,7 @@ app.get('/employees', (req, res) => {
   
   
   app.post('/attendance/clock-in', (req, res) => {
-    const userId = req.user.id; // assuming req.user contains authenticated user data
+    const userId = req.user.id; 
     const clockInTime = new Date();
   
     const sql = 'INSERT INTO attendance (user_id, clock_in) VALUES (?, ?)';
@@ -572,6 +572,22 @@ app.get('/employees', (req, res) => {
     });
   });
   
+  app.post('/documents', (req, res) => {
+    const { title, content, employeeId } = req.body;
+    const sql = `
+      INSERT INTO documents (title, content, employee_id) 
+      VALUES (?, ?, ?)
+    `;
+    con.query(sql, [title, content, employeeId], (err, result) => {
+      if (err) {
+        console.error('Error adding document:', err);
+        return res.status(500).json({ error: 'Error adding document' });
+      }
+      res.json({ status: 'Document added successfully' });
+    });
+  });
+  
+
   
 
   
@@ -656,6 +672,40 @@ app.post('/employeelogin', (req, res) => {
         return res.json({Status: "Success", Result: result})
     })
 })
+
+app.get('/employee/:id/documents', (req, res) => {
+    const { id } = req.params;
+    const sql = `
+      SELECT * 
+      FROM documents 
+      WHERE employee_id = ?
+    `;
+    con.query(sql, [id], (err, result) => {
+      if (err) {
+        console.error('Error fetching employee documents:', err);
+        return res.status(500).json({ error: 'Error fetching employee documents' });
+      }
+      res.json(result);
+    });
+  });
+  
+
+  app.get('/documents', (req, res) => {
+    const sql = `
+      SELECT documents.*, employees.name AS employeeName 
+      FROM documents 
+      JOIN employees ON documents.employee_id = employees.id
+    `;
+    con.query(sql, (err, result) => {
+      if (err) {
+        console.error('Error fetching documents:', err);
+        return res.status(500).json({ error: 'Error fetching documents' });
+      }
+      res.json(result);
+    });
+  });
+  
+  
 
 
 app.get('/getEmployees', (req, res) => {
