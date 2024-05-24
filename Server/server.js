@@ -430,13 +430,13 @@ app.get('/employeeCount', (req, res) => {
 })
 
 app.get('/employees', (req, res) => {
-    const sql = "SELECT id, name FROM employee";
+    const sql = 'SELECT id, name, email FROM employee';
     con.query(sql, (err, result) => {
       if (err) {
-        console.error("Error fetching employees:", err);
-        return res.status(500).json({ Error: "Error fetching employees" });
+        console.error('Error fetching employees:', err);
+        return res.status(500).json({ error: 'Error fetching employees' });
       }
-      return res.json(result);
+      res.json(result);
     });
   });
   
