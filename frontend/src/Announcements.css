@@ -20,3 +20,16 @@
     margin-right: 10px;
   }
   
+  form {
+    margin-bottom: 20px;
+  }
+  
+  form .form-control, form .form-check-input {
+    margin-bottom: 10px;
+  }
+  
+  form .btn {
+    display: block;
+    margin-top: 10px;
+  }
+  
