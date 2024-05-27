@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import Modal from 'react-modal';
 import './Announcements.css';
+
+Modal.setAppElement('#root');
 
 function Announcements() {
   const [announcements, setAnnouncements] = useState([]);
@@ -12,9 +15,13 @@ function Announcements() {
   });
   const [comments, setComments] = useState({});
   const [newComment, setNewComment] = useState('');
+  const [selectedAnnouncement, setSelectedAnnouncement] = useState(null);
+  const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
+  const [userEmail, setUserEmail] = useState('');
 
   useEffect(() => {
     fetchAnnouncements();
+    fetchUserProfile();
   }, []);
 
   const fetchAnnouncements = () => {
@@ -40,6 +47,20 @@ function Announcements() {
       })
       .catch(err => {
         console.error('Error fetching comments:', err);
+      });
+  };
+
+  const fetchUserProfile = () => {
+    axios.get('http://localhost:8081/profile', { withCredentials: true })
+      .then(res => {
+        if (res.data.Status === 'Success') {
+          setUserEmail(res.data.Profile.email);
+        } else {
+          console.error('Error fetching user profile');
+        }
+      })
+      .catch(err => {
+        console.error('Error fetching user profile:', err);
       });
   };
 
@@ -71,8 +92,8 @@ function Announcements() {
       });
   };
 
-  const handleAddComment = (announcement_id, email) => {
-    axios.post('http://localhost:8081/comments', { announcement_id, email, content: newComment })
+  const handleAddComment = (announcement_id) => {
+    axios.post('http://localhost:8081/comments', { announcement_id, email: userEmail, content: newComment })
       .then(res => {
         setComments(prevComments => ({
           ...prevComments,
@@ -83,6 +104,16 @@ function Announcements() {
       .catch(err => {
         console.error('Error adding comment:', err);
       });
+  };
+
+  const openCommentModal = (announcement) => {
+    setSelectedAnnouncement(announcement);
+    setIsCommentModalOpen(true);
+  };
+
+  const closeCommentModal = () => {
+    setIsCommentModalOpen(false);
+    setSelectedAnnouncement(null);
   };
 
   const filteredAnnouncements = announcements.filter(announcement => {
@@ -145,6 +176,7 @@ function Announcements() {
             <th>Content</th>
             <th>Importance</th>
             <th>Created At</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -154,36 +186,44 @@ function Announcements() {
               <td>{announcement.content}</td>
               <td>{announcement.isImportant ? 'Important' : 'Normal'}</td>
               <td>{new Date(announcement.created_at).toLocaleString()}</td>
+              <td>
+                <button onClick={() => openCommentModal(announcement)} className="btn btn-secondary">Comments</button>
+              </td>
             </tr>
           ))}
         </tbody>
       </table>
-      {filteredAnnouncements.map(announcement => (
-        <div key={announcement.id} className="announcement">
-          <h3>{announcement.title}</h3>
-          <p>{announcement.content}</p>
-          <p>{announcement.isImportant ? 'Important' : 'Normal'}</p>
-          <p>{new Date(announcement.created_at).toLocaleString()}</p>
-          <div className="comments">
-            <h4>Comments</h4>
-            {comments[announcement.id] && comments[announcement.id].map(comment => (
-              <div key={comment.id} className="comment">
-                <p><strong>{comment.email}</strong></p>
-                <p>{comment.content}</p>
-                <p>{new Date(comment.created_at).toLocaleString()}</p>
-              </div>
-            ))}
+      <Modal
+        isOpen={isCommentModalOpen}
+        onRequestClose={closeCommentModal}
+        contentLabel="Comments"
+        className="modal-content"
+        overlayClassName="modal-overlay"
+      >
+        {selectedAnnouncement && (
+          <>
+            <h2>Comments for {selectedAnnouncement.title}</h2>
+            <div className="comments">
+              {comments[selectedAnnouncement.id] && comments[selectedAnnouncement.id].map(comment => (
+                <div key={comment.id} className="comment">
+                  <p><strong>{comment.email}</strong></p>
+                  <p>{comment.content}</p>
+                  <p>{new Date(comment.created_at).toLocaleString()}</p>
+                </div>
+              ))}
+            </div>
             <textarea
               value={newComment}
               onChange={e => setNewComment(e.target.value)}
               placeholder="Add a comment"
             />
-            <button onClick={() => handleAddComment(announcement.id, /* Replace this with the user's email */ "user@example.com")}>
+            <button onClick={() => handleAddComment(selectedAnnouncement.id)}>
               Add Comment
             </button>
-          </div>
-        </div>
-      ))}
+            <button onClick={closeCommentModal} className="btn btn-secondary">Close</button>
+          </>
+        )}
+      </Modal>
     </div>
   );
 }
