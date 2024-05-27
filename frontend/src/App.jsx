@@ -20,6 +20,7 @@ import Attendance from './Attendance';
 import EmployeeAttendance from './EmployeeAttendance';
 import AdminDocuments from './AdminDocuments';
 import EmployeeDocuments from './EmployeeDocuments';
+import Announcements from './Announcements';
 
 function App() {
   return (
@@ -44,6 +45,7 @@ function App() {
           <Route path="reports" element={<Reports />} />
           <Route path="attendance" element={<Attendance />} />
           <Route path="documents" element={<AdminDocuments />} />
+          <Route path="announcements" element={<Announcements />} />
         </Route>
         <Route path="/employeedetail/:id" element={<EmployeeDetail />} />
         <Route path="/employeedetail/:id/messages" element={<Messages />} />
