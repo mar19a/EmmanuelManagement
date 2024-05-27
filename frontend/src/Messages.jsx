@@ -107,6 +107,11 @@ function Messages() {
                   <i className="fs-4 bi-calendar-check"></i> <span className="ms-1 d-none d-sm-inline">Attendance</span>
                 </a>
               </li>
+              <li>
+                <a href="#" onClick={() => navigate(`/employeedetail/${id}/documents`)} className="nav-link text-white px-0 align-middle">
+                  <i className="fs-4 bi-file-earmark"></i> <span className="ms-1 d-none d-sm-inline">Documents</span>
+                </a>
+              </li>
               <li onClick={handleLogout}>
                 <a href="#" className="nav-link px-0 align-middle text-white">
                   <i className="fs-4 bi-power"></i> <span className="ms-1 d-none d-sm-inline">Logout</span></a>
