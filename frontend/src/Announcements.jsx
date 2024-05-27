@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Modal from 'react-modal';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 import './Announcements.css';
 
 Modal.setAppElement('#root');
@@ -8,6 +10,8 @@ Modal.setAppElement('#root');
 function Announcements() {
   const [announcements, setAnnouncements] = useState([]);
   const [filter, setFilter] = useState('all');
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
   const [newAnnouncement, setNewAnnouncement] = useState({
     title: '',
     content: '',
@@ -117,8 +121,12 @@ function Announcements() {
   };
 
   const filteredAnnouncements = announcements.filter(announcement => {
-    if (filter === 'all') return true;
-    return filter === 'important' ? announcement.isImportant : !announcement.isImportant;
+    if (filter !== 'all') {
+      return filter === 'important' ? announcement.isImportant : !announcement.isImportant;
+    }
+    if (startDate && new Date(announcement.created_at) < startDate) return false;
+    if (endDate && new Date(announcement.created_at) > endDate) return false;
+    return true;
   });
 
   return (
@@ -131,6 +139,22 @@ function Announcements() {
           <option value="important">Important</option>
           <option value="normal">Normal</option>
         </select>
+        <div className="date-picker-container">
+          <label htmlFor="startDate">Start Date: </label>
+          <DatePicker
+            selected={startDate}
+            onChange={(date) => setStartDate(date)}
+            isClearable
+            placeholderText="Select start date"
+          />
+          <label htmlFor="endDate">End Date: </label>
+          <DatePicker
+            selected={endDate}
+            onChange={(date) => setEndDate(date)}
+            isClearable
+            placeholderText="Select end date"
+          />
+        </div>
       </div>
       <form onSubmit={handleAddAnnouncement} className="mb-4">
         <div className="mb-3">

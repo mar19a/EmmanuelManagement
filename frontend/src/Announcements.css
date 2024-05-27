@@ -14,9 +14,20 @@
 
 .filter-container {
     margin-bottom: 20px;
+    display: flex;
+    align-items: center;
 }
 
 .filter-container label {
+    margin-right: 10px;
+}
+
+.date-picker-container {
+    display: flex;
+    align-items: center;
+}
+
+.date-picker-container label {
     margin-right: 10px;
 }
 
