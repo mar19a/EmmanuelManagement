@@ -260,7 +260,19 @@ app.get('/announcements', (req, res) => {
     });
   });
   
+  app.post('/feedback', (req, res) => {
+    const { employee_id, content } = req.body;
+    const sql = 'INSERT INTO feedback (employee_id, content) VALUES (?, ?)';
+    con.query(sql, [employee_id, content], (err, result) => {
+      if (err) {
+        console.error('Error submitting feedback:', err);
+        return res.status(500).json({ error: 'Error submitting feedback' });
+      }
+      res.json({ Status: 'Success' });
+    });
+  });
 
+  
 
 app.get('/users/:id', (req, res) => {
     const userId = req.params.id;
