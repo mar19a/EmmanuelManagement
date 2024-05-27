@@ -19,7 +19,7 @@ function EmployeeFeedback() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    axios.post('http://localhost:8081/feedback', { feedback })
+    axios.post('http://localhost:8081/feedback', { content: feedback })
       .then(res => {
         setStatus('Feedback submitted successfully');
         setFeedback('');
