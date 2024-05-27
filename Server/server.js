@@ -261,9 +261,9 @@ app.get('/announcements', (req, res) => {
   });
   
   app.post('/feedback', (req, res) => {
-    const { employee_id, content } = req.body;
-    const sql = 'INSERT INTO feedback (employee_id, content) VALUES (?, ?)';
-    con.query(sql, [employee_id, content], (err, result) => {
+    const { content } = req.body;
+    const sql = 'INSERT INTO feedback (content) VALUES (?)';
+    con.query(sql, [content], (err, result) => {
       if (err) {
         console.error('Error submitting feedback:', err);
         return res.status(500).json({ error: 'Error submitting feedback' });
@@ -271,6 +271,7 @@ app.get('/announcements', (req, res) => {
       res.json({ Status: 'Success' });
     });
   });
+  
 
   
 
