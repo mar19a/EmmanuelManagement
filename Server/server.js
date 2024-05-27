@@ -236,6 +236,31 @@ app.get('/announcements', (req, res) => {
     });
   });
 
+  app.get('/comments/:announcement_id', (req, res) => {
+    const { announcement_id } = req.params;
+    const sql = 'SELECT * FROM comments WHERE announcement_id = ?';
+    con.query(sql, [announcement_id], (err, result) => {
+      if (err) {
+        console.error('Error fetching comments:', err);
+        return res.status(500).json({ error: 'Error fetching comments' });
+      }
+      res.json(result);
+    });
+});
+
+app.post('/comments', (req, res) => {
+    const { announcement_id, email, content } = req.body;
+    const sql = 'INSERT INTO comments (announcement_id, email, content) VALUES (?, ?, ?)';
+    con.query(sql, [announcement_id, email, content], (err, result) => {
+      if (err) {
+        console.error('Error adding comment:', err);
+        return res.status(500).json({ error: 'Error adding comment' });
+      }
+      res.json({ id: result.insertId, announcement_id, email, content, created_at: new Date() });
+    });
+});
+
+
 app.get('/users/:id', (req, res) => {
     const userId = req.params.id;
 
