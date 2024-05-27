@@ -3,11 +3,14 @@ import axios from 'axios';
 import Modal from 'react-modal';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import { useParams, useNavigate } from 'react-router-dom';
 import './EmployeeAnnouncements.css';
 
 Modal.setAppElement('#root');
 
 function EmployeeAnnouncements() {
+  const { id } = useParams();
+  const navigate = useNavigate();
   const [announcements, setAnnouncements] = useState([]);
   const [filter, setFilter] = useState('all');
   const [startDate, setStartDate] = useState(null);
@@ -20,8 +23,8 @@ function EmployeeAnnouncements() {
 
   useEffect(() => {
     fetchAnnouncements();
-    fetchUserProfile();
-  }, []);
+    fetchEmployeeEmail();
+  }, [id]);
 
   const fetchAnnouncements = () => {
     axios.get('http://localhost:8081/announcements')
@@ -49,17 +52,17 @@ function EmployeeAnnouncements() {
       });
   };
 
-  const fetchUserProfile = () => {
-    axios.get('http://localhost:8081/profile', { withCredentials: true })
+  const fetchEmployeeEmail = () => {
+    axios.get(`http://localhost:8081/get/${id}`)
       .then(res => {
-        if (res.data.Status === 'Success') {
-          setUserEmail(res.data.Profile.email);
+        if (res.data.Status === 'Success' && res.data.Result.length > 0) {
+          setUserEmail(res.data.Result[0].email);
         } else {
-          console.error('Error fetching user profile');
+          console.error('Error fetching employee email:', res.data);
         }
       })
       .catch(err => {
-        console.error('Error fetching user profile:', err);
+        console.error('Error fetching employee email:', err);
       });
   };
 

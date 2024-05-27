@@ -246,9 +246,9 @@ app.get('/announcements', (req, res) => {
       }
       res.json(result);
     });
-});
-
-app.post('/comments', (req, res) => {
+  });
+  
+  app.post('/comments', (req, res) => {
     const { announcement_id, email, content } = req.body;
     const sql = 'INSERT INTO comments (announcement_id, email, content) VALUES (?, ?, ?)';
     con.query(sql, [announcement_id, email, content], (err, result) => {
