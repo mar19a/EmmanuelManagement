@@ -21,6 +21,8 @@ import EmployeeAttendance from './EmployeeAttendance';
 import AdminDocuments from './AdminDocuments';
 import EmployeeDocuments from './EmployeeDocuments';
 import Announcements from './Announcements';
+import EmployeeAnnouncements from './EmployeeAnnouncements.jsx';
+
 
 function App() {
   return (
@@ -51,6 +53,7 @@ function App() {
         <Route path="/employeedetail/:id/messages" element={<Messages />} />
         <Route path="/employeedetail/:id/attendance" element={<EmployeeAttendance />} />
         <Route path="/employeedetail/:id/documents" element={<EmployeeDocuments />} />
+        <Route path="/employeedetail/:id/announcements" element={<EmployeeAnnouncements />} />
       </Routes>
     </BrowserRouter>
   );

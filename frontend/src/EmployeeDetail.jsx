@@ -5,11 +5,11 @@ import { Calendar, momentLocalizer } from 'react-big-calendar';
 import moment from 'moment';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import Modal from 'react-modal';
-import './EmployeeDetail.css'; // Ensure this imports the CSS
+import './EmployeeDetail.css'; 
 
 const localizer = momentLocalizer(moment);
 
-Modal.setAppElement('#root'); // Ensure this is set for accessibility
+Modal.setAppElement('#root');
 
 function EmployeeDetail() {
   const { id } = useParams();
@@ -146,6 +146,11 @@ function EmployeeDetail() {
               <li>
                 <a href="#" onClick={() => navigate(`/employeedetail/${id}/documents`)} className="nav-link text-white px-0 align-middle">
                   <i className="fs-4 bi-file-earmark"></i> <span className="ms-1 d-none d-sm-inline">Documents</span>
+                </a>
+              </li>
+              <li>
+                <a href="#" onClick={() => navigate(`/employeedetail/${id}/announcements`)} className="nav-link text-white px-0 align-middle">
+                  <i className="fs-4 bi-megaphone"></i> <span className="ms-1 d-none d-sm-inline">Announcements</span>
                 </a>
               </li>
               <li onClick={handleLogout}>
