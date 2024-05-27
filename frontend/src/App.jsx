@@ -22,6 +22,7 @@ import AdminDocuments from './AdminDocuments';
 import EmployeeDocuments from './EmployeeDocuments';
 import Announcements from './Announcements';
 import EmployeeAnnouncements from './EmployeeAnnouncements.jsx';
+import EmployeeFeedback from './EmployeeFeedback';
 
 
 function App() {
@@ -54,6 +55,7 @@ function App() {
         <Route path="/employeedetail/:id/attendance" element={<EmployeeAttendance />} />
         <Route path="/employeedetail/:id/documents" element={<EmployeeDocuments />} />
         <Route path="/employeedetail/:id/announcements" element={<EmployeeAnnouncements />} />
+        <Route path="/employeedetail/:id/feedback" element={<EmployeeFeedback />} />
       </Routes>
     </BrowserRouter>
   );

@@ -153,6 +153,11 @@ function EmployeeDetail() {
                   <i className="fs-4 bi-megaphone"></i> <span className="ms-1 d-none d-sm-inline">Announcements</span>
                 </a>
               </li>
+              <li>
+                <a href="#" onClick={() => navigate(`/employeedetail/${id}/feedback`)} className="nav-link text-white px-0 align-middle">
+                  <i className="fs-4 bi-chat-dots"></i> <span className="ms-1 d-none d-sm-inline">Feedback</span>
+                </a>
+              </li>
               <li onClick={handleLogout}>
                 <a href="#" className="nav-link px-0 align-middle text-white">
                   <i className="fs-4 bi-power"></i> <span className="ms-1 d-none d-sm-inline">Logout</span></a>
