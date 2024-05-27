@@ -10,6 +10,8 @@ function Announcements() {
     content: '',
     isImportant: false
   });
+  const [comments, setComments] = useState({});
+  const [newComment, setNewComment] = useState('');
 
   useEffect(() => {
     fetchAnnouncements();
@@ -19,9 +21,25 @@ function Announcements() {
     axios.get('http://localhost:8081/announcements')
       .then(res => {
         setAnnouncements(res.data);
+        res.data.forEach(announcement => {
+          fetchComments(announcement.id);
+        });
       })
       .catch(err => {
         console.error('Error fetching announcements:', err);
+      });
+  };
+
+  const fetchComments = (announcement_id) => {
+    axios.get(`http://localhost:8081/comments/${announcement_id}`)
+      .then(res => {
+        setComments(prevComments => ({
+          ...prevComments,
+          [announcement_id]: res.data
+        }));
+      })
+      .catch(err => {
+        console.error('Error fetching comments:', err);
       });
   };
 
@@ -50,6 +68,20 @@ function Announcements() {
       })
       .catch(err => {
         console.error('Error adding announcement:', err);
+      });
+  };
+
+  const handleAddComment = (announcement_id, email) => {
+    axios.post('http://localhost:8081/comments', { announcement_id, email, content: newComment })
+      .then(res => {
+        setComments(prevComments => ({
+          ...prevComments,
+          [announcement_id]: [...prevComments[announcement_id], res.data]
+        }));
+        setNewComment('');
+      })
+      .catch(err => {
+        console.error('Error adding comment:', err);
       });
   };
 
@@ -126,6 +158,32 @@ function Announcements() {
           ))}
         </tbody>
       </table>
+      {filteredAnnouncements.map(announcement => (
+        <div key={announcement.id} className="announcement">
+          <h3>{announcement.title}</h3>
+          <p>{announcement.content}</p>
+          <p>{announcement.isImportant ? 'Important' : 'Normal'}</p>
+          <p>{new Date(announcement.created_at).toLocaleString()}</p>
+          <div className="comments">
+            <h4>Comments</h4>
+            {comments[announcement.id] && comments[announcement.id].map(comment => (
+              <div key={comment.id} className="comment">
+                <p><strong>{comment.email}</strong></p>
+                <p>{comment.content}</p>
+                <p>{new Date(comment.created_at).toLocaleString()}</p>
+              </div>
+            ))}
+            <textarea
+              value={newComment}
+              onChange={e => setNewComment(e.target.value)}
+              placeholder="Add a comment"
+            />
+            <button onClick={() => handleAddComment(announcement.id, /* Replace this with the user's email */ "user@example.com")}>
+              Add Comment
+            </button>
+          </div>
+        </div>
+      ))}
     </div>
   );
 }
