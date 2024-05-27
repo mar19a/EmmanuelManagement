@@ -271,10 +271,18 @@ app.get('/announcements', (req, res) => {
       res.json({ Status: 'Success' });
     });
   });
-  
 
+  app.get('/feedbacks', (req, res) => {
+    const sql = 'SELECT * FROM feedback';
+    con.query(sql, (err, result) => {
+      if (err) {
+        console.error('Error fetching feedbacks:', err);
+        return res.status(500).json({ error: 'Error fetching feedbacks' });
+      }
+      res.json(result);
+    });
+  });
   
-
 app.get('/users/:id', (req, res) => {
     const userId = req.params.id;
 
