@@ -134,7 +134,7 @@ function EmployeeAttendance() {
                   <i className="fs-4 bi-megaphone"></i> <span className="ms-1 d-none d-sm-inline">Announcements</span>
                 </a>
               </li>
-              <li onClick={() => navigate('/start')}>
+              <li onClick={() => axios.get('http://localhost:8081/logout').then(() => navigate('/start')).catch(err => console.log(err))}>
                 <a href="#" className="nav-link px-0 align-middle text-white">
                   <i className="fs-4 bi-power"></i> <span className="ms-1 d-none d-sm-inline">Logout</span></a>
               </li>
