@@ -43,24 +43,41 @@ con.connect(function(err) {
     }
 })
 
-const uploadDir = path.join(__dirname, 'uploads');
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir);
+const imagesDir = path.join(__dirname, 'images');
+const uploadsDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(imagesDir)) {
+  fs.mkdirSync(imagesDir);
+}
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir);
 }
 
-const storage = multer.diskStorage({
+// Configure multer for profile images
+const imageStorage = multer.diskStorage({
+    destination: (req, file, cb) => {
+      cb(null, 'images/');
+    },
+    filename: (req, file, cb) => {
+      cb(null, Date.now() + path.extname(file.originalname));
+    }
+});
+
+const imageUpload = multer({ storage: imageStorage });
+
+// Configure multer for document files
+const uploadStorage = multer.diskStorage({
     destination: (req, file, cb) => {
       cb(null, 'uploads/');
     },
     filename: (req, file, cb) => {
       cb(null, Date.now() + path.extname(file.originalname));
     }
-  });
-  
-  const upload = multer({ storage: storage });
+});
 
-  app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+const upload = multer({ storage: uploadStorage });
 
+app.use('/images', express.static(path.join(__dirname, 'images')));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
   app.get('/documents', (req, res) => {
     const sql = `
       SELECT documents.*, employee.name AS employeeName 
@@ -195,6 +212,29 @@ app.get('/events', (req, res) => {
     });
 });
 
+app.get('/announcements', (req, res) => {
+    const sql = 'SELECT * FROM announcements';
+    con.query(sql, (err, result) => {
+      if (err) {
+        console.error('Error fetching announcements:', err);
+        return res.status(500).json({ error: 'Error fetching announcements' });
+      }
+      res.json(result);
+    });
+  });
+  
+  
+  app.post('/announcements', (req, res) => {
+    const { title, content, isImportant } = req.body;
+    const sql = 'INSERT INTO announcements (title, content, isImportant) VALUES (?, ?, ?)';
+    con.query(sql, [title, content, isImportant], (err, result) => {
+      if (err) {
+        console.error('Error adding announcement:', err);
+        return res.status(500).json({ error: 'Error adding announcement' });
+      }
+      res.json({ id: result.insertId, title, content, isImportant });
+    });
+  });
 
 app.get('/users/:id', (req, res) => {
     const userId = req.params.id;
@@ -768,35 +808,6 @@ app.get('/logout', (req, res) => {
     return res.json({Status: "Success"});
 })
 
-app.post('/create', upload.single('image'), (req, res) => {
-    const sql = "INSERT INTO employee (`name`,`email`,`password`, `address`, `salary`,`image`) VALUES (?)";
-    bcrypt.hash(req.body.password.toString(), 10, (err, hash) => {
-        if (err) return res.json({ Error: "Error in hashing password" });
-        const values = [
-            req.body.name,
-            req.body.email,
-            hash,
-            req.body.address,
-            req.body.salary,
-            req.file ? req.file.filename : null // Check if file exists
-        ];
-        con.query(sql, [values], (err, result) => {
-            if (err) return res.json({ Error: "Inside signup query" });
-
-            // Insert into the 'all' table
-            const insertAllSql = "INSERT INTO `all` (id, email) VALUES (?, ?)";
-            const newEmployeeId = result.insertId; // Get the newly inserted employee's ID
-            con.query(insertAllSql, [newEmployeeId, req.body.email], (err, result) => {
-                if (err) {
-                    console.error("Error inserting into all table:", err);
-                    return res.json({ Error: "Error inserting into all table", Details: err.message });
-                }
-                console.log(`Employee ${req.body.email} signed up successfully and inserted into all table`);
-                return res.json({ Status: "Success" });
-            });
-        });
-    });
-});
 
 
 

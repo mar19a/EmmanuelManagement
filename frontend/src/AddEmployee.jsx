@@ -24,7 +24,7 @@ function AddEmployee() {
         formdata.append("image", data.image);
         axios.post('http://localhost:8081/create', formdata)
         .then(res => {
-            navigate('/dashboard/employee'); // Navigate to the absolute path of the employee dashboard
+            navigate('/dashboard/employee');
         })
         .catch(err => console.log(err));
     };

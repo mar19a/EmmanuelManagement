@@ -5,6 +5,11 @@ import './Announcements.css';
 function Announcements() {
   const [announcements, setAnnouncements] = useState([]);
   const [filter, setFilter] = useState('all');
+  const [newAnnouncement, setNewAnnouncement] = useState({
+    title: '',
+    content: '',
+    isImportant: false
+  });
 
   useEffect(() => {
     fetchAnnouncements();
@@ -24,6 +29,30 @@ function Announcements() {
     setFilter(e.target.value);
   };
 
+  const handleInputChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setNewAnnouncement({
+      ...newAnnouncement,
+      [name]: type === 'checkbox' ? checked : value
+    });
+  };
+
+  const handleAddAnnouncement = (e) => {
+    e.preventDefault();
+    axios.post('http://localhost:8081/announcements', newAnnouncement)
+      .then(res => {
+        setAnnouncements([...announcements, res.data]);
+        setNewAnnouncement({
+          title: '',
+          content: '',
+          isImportant: false
+        });
+      })
+      .catch(err => {
+        console.error('Error adding announcement:', err);
+      });
+  };
+
   const filteredAnnouncements = announcements.filter(announcement => {
     if (filter === 'all') return true;
     return filter === 'important' ? announcement.isImportant : !announcement.isImportant;
@@ -40,7 +69,44 @@ function Announcements() {
           <option value="normal">Normal</option>
         </select>
       </div>
-      <table className="table table-striped mt-3">
+      <form onSubmit={handleAddAnnouncement} className="mb-4">
+        <div className="mb-3">
+          <label htmlFor="title" className="form-label">Title</label>
+          <input
+            type="text"
+            name="title"
+            id="title"
+            value={newAnnouncement.title}
+            onChange={handleInputChange}
+            className="form-control"
+            required
+          />
+        </div>
+        <div className="mb-3">
+          <label htmlFor="content" className="form-label">Content</label>
+          <textarea
+            name="content"
+            id="content"
+            value={newAnnouncement.content}
+            onChange={handleInputChange}
+            className="form-control"
+            required
+          ></textarea>
+        </div>
+        <div className="form-check mb-3">
+          <input
+            type="checkbox"
+            name="isImportant"
+            id="isImportant"
+            checked={newAnnouncement.isImportant}
+            onChange={handleInputChange}
+            className="form-check-input"
+          />
+          <label htmlFor="isImportant" className="form-check-label">Important</label>
+        </div>
+        <button type="submit" className="btn btn-primary">Add Announcement</button>
+      </form>
+      <table className="table table-striped">
         <thead>
           <tr>
             <th>Title</th>
@@ -63,4 +129,3 @@ function Announcements() {
 }
 
 export default Announcements;
-
