@@ -112,6 +112,7 @@ function Announcements() {
             <th>Title</th>
             <th>Content</th>
             <th>Importance</th>
+            <th>Created At</th>
           </tr>
         </thead>
         <tbody>
@@ -120,6 +121,7 @@ function Announcements() {
               <td>{announcement.title}</td>
               <td>{announcement.content}</td>
               <td>{announcement.isImportant ? 'Important' : 'Normal'}</td>
+              <td>{new Date(announcement.created_at).toLocaleString()}</td>
             </tr>
           ))}
         </tbody>
