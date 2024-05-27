@@ -101,87 +101,135 @@ function EmployeeAnnouncements() {
   });
 
   return (
-    <div className="container">
-      <h2>Announcements</h2>
-      <div className="filter-container">
-        <label htmlFor="filter">Filter: </label>
-        <select id="filter" value={filter} onChange={handleFilterChange}>
-          <option value="all">All</option>
-          <option value="important">Important</option>
-          <option value="normal">Normal</option>
-        </select>
-        <div className="date-picker-container">
-          <label htmlFor="startDate">Start Date: </label>
-          <DatePicker
-            selected={startDate}
-            onChange={(date) => setStartDate(date)}
-            isClearable
-            placeholderText="Select start date"
-          />
-          <label htmlFor="endDate">End Date: </label>
-          <DatePicker
-            selected={endDate}
-            onChange={(date) => setEndDate(date)}
-            isClearable
-            placeholderText="Select end date"
-          />
+    <div className="container-fluid">
+      <div className="row flex-nowrap">
+        <div className="col-auto col-md-3 col-xl-2 px-sm-2 px-0 bg-dark">
+          <div className="d-flex flex-column align-items-center align-items-sm-start px-3 pt-2 text-white min-vh-100">
+            <a href="#" onClick={() => navigate(`/employeedetail/${id}`)} className="d-flex align-items-center pb-3 mb-md-1 mt-md-3 me-md-auto text-white text-decoration-none">
+              <span className="fs-5 fw-bolder d-none d-sm-inline">Employee Dashboard</span>
+            </a>
+            <ul className="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start" id="menu">
+              <li>
+                <a href="#" onClick={() => navigate(`/employeedetail/${id}`)} className="nav-link text-white px-0 align-middle">
+                  <i className="fs-4 bi-speedometer2"></i> <span className="ms-1 d-none d-sm-inline">Profile</span>
+                </a>
+              </li>
+              <li>
+                <a href="#" onClick={() => navigate(`/employeedetail/${id}/messages`)} className="nav-link text-white px-0 align-middle">
+                  <i className="fs-4 bi-chat"></i> <span className="ms-1 d-none d-sm-inline">Messages</span>
+                </a>
+              </li>
+              <li>
+                <a href="#" onClick={() => navigate(`/employeedetail/${id}/attendance`)} className="nav-link text-white px-0 align-middle">
+                  <i className="fs-4 bi-calendar-check"></i> <span className="ms-1 d-none d-sm-inline">Attendance</span>
+                </a>
+              </li>
+              <li>
+                <a href="#" onClick={() => navigate(`/employeedetail/${id}/documents`)} className="nav-link text-white px-0 align-middle">
+                  <i className="fs-4 bi-file-earmark"></i> <span className="ms-1 d-none d-sm-inline">Documents</span>
+                </a>
+              </li>
+              <li>
+                <a href="#" onClick={() => navigate(`/employeedetail/${id}/announcements`)} className="nav-link text-white px-0 align-middle">
+                  <i className="fs-4 bi-megaphone"></i> <span className="ms-1 d-none d-sm-inline">Announcements</span>
+                </a>
+              </li>
+              <li onClick={() => axios.get('http://localhost:8081/logout').then(() => navigate('/start')).catch(err => console.log(err))}>
+                <a href="#" className="nav-link px-0 align-middle text-white">
+                  <i className="fs-4 bi-power"></i> <span className="ms-1 d-none d-sm-inline">Logout</span></a>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div className="col p-0 m-0">
+          <div className="p-2 d-flex justify-content-center shadow">
+            <h4>Employee Management System</h4>
+          </div>
+          <div className="container">
+            <h2>Announcements</h2>
+            <div className="filter-container">
+              <label htmlFor="filter">Filter: </label>
+              <select id="filter" value={filter} onChange={handleFilterChange}>
+                <option value="all">All</option>
+                <option value="important">Important</option>
+                <option value="normal">Normal</option>
+              </select>
+              <div className="date-picker-container">
+                <label htmlFor="startDate">Start Date: </label>
+                <DatePicker
+                  selected={startDate}
+                  onChange={(date) => setStartDate(date)}
+                  isClearable
+                  placeholderText="Select start date"
+                />
+                <label htmlFor="endDate">End Date: </label>
+                <DatePicker
+                  selected={endDate}
+                  onChange={(date) => setEndDate(date)}
+                  isClearable
+                  placeholderText="Select end date"
+                />
+              </div>
+            </div>
+            <table className="table table-striped">
+              <thead>
+                <tr>
+                  <th>Title</th>
+                  <th>Content</th>
+                  <th>Importance</th>
+                  <th>Created At</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredAnnouncements.map(announcement => (
+                  <tr key={announcement.id}>
+                    <td>{announcement.title}</td>
+                    <td>{announcement.content}</td>
+                    <td>{announcement.isImportant ? 'Important' : 'Normal'}</td>
+                    <td>{new Date(announcement.created_at).toLocaleString()}</td>
+                    <td>
+                      <button onClick={() => openCommentModal(announcement)} className="btn btn-secondary">Comments</button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <Modal
+              isOpen={isCommentModalOpen}
+              onRequestClose={closeCommentModal}
+              contentLabel="Comments"
+              className="modal-content"
+              overlayClassName="modal-overlay"
+            >
+              {selectedAnnouncement && (
+                <>
+                  <h2>Comments for {selectedAnnouncement.title}</h2>
+                  <div className="comments">
+                    {comments[selectedAnnouncement.id] && comments[selectedAnnouncement.id].map(comment => (
+                      <div key={comment.id} className="comment">
+                        <p><strong>{comment.email}</strong></p>
+                        <p>{comment.content}</p>
+                        <p>{new Date(comment.created_at).toLocaleString()}</p>
+                      </div>
+                    ))}
+                  </div>
+                  <textarea
+                    className="form-control mt-2"
+                    value={newComment}
+                    onChange={e => setNewComment(e.target.value)}
+                    placeholder="Add a comment"
+                  />
+                  <button onClick={() => handleAddComment(selectedAnnouncement.id)} className="btn btn-primary mt-2">
+                    Add Comment
+                  </button>
+                  <button onClick={closeCommentModal} className="btn btn-secondary mt-2">Close</button>
+                </>
+              )}
+            </Modal>
+          </div>
         </div>
       </div>
-      <table className="table table-striped">
-        <thead>
-          <tr>
-            <th>Title</th>
-            <th>Content</th>
-            <th>Importance</th>
-            <th>Created At</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredAnnouncements.map(announcement => (
-            <tr key={announcement.id}>
-              <td>{announcement.title}</td>
-              <td>{announcement.content}</td>
-              <td>{announcement.isImportant ? 'Important' : 'Normal'}</td>
-              <td>{new Date(announcement.created_at).toLocaleString()}</td>
-              <td>
-                <button onClick={() => openCommentModal(announcement)} className="btn btn-secondary">Comments</button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <Modal
-        isOpen={isCommentModalOpen}
-        onRequestClose={closeCommentModal}
-        contentLabel="Comments"
-        className="modal-content"
-        overlayClassName="modal-overlay"
-      >
-        {selectedAnnouncement && (
-          <>
-            <h2>Comments for {selectedAnnouncement.title}</h2>
-            <div className="comments">
-              {comments[selectedAnnouncement.id] && comments[selectedAnnouncement.id].map(comment => (
-                <div key={comment.id} className="comment">
-                  <p><strong>{comment.email}</strong></p>
-                  <p>{comment.content}</p>
-                  <p>{new Date(comment.created_at).toLocaleString()}</p>
-                </div>
-              ))}
-            </div>
-            <textarea
-              value={newComment}
-              onChange={e => setNewComment(e.target.value)}
-              placeholder="Add a comment"
-            />
-            <button onClick={() => handleAddComment(selectedAnnouncement.id)}>
-              Add Comment
-            </button>
-            <button onClick={closeCommentModal} className="btn btn-secondary">Close</button>
-          </>
-        )}
-      </Modal>
     </div>
   );
 }

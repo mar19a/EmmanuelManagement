@@ -258,7 +258,8 @@ app.post('/comments', (req, res) => {
       }
       res.json({ id: result.insertId, announcement_id, email, content, created_at: new Date() });
     });
-});
+  });
+  
 
 
 app.get('/users/:id', (req, res) => {
