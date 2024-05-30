@@ -144,6 +144,15 @@ a new attendance record and view attendance data by date.
 
 Navigate to the "Feedback" section to view feedback submitted by employees.
 
+# Employee Dashboard:
+
+<img width="1440" alt="Screenshot 2024-05-30 at 1 58 11 AM" src="https://github.com/mar19a/EmmanuelManagement/assets/84360137/2d24f78c-3cda-4da6-aac1-71876a2c6d2d">
+<img width="1440" alt="Screenshot 2024-05-30 at 1 58 19 AM" src="https://github.com/mar19a/EmmanuelManagement/assets/84360137/b477df87-4953-43da-a2ba-4b6db7ce8bdd">
+<img width="1440" alt="Screenshot 2024-05-30 at 1 58 28 AM" src="https://github.com/mar19a/EmmanuelManagement/assets/84360137/e7e038f2-d930-4ff5-8b4f-d7bf0f747ccc">
+<img width="1439" alt="Screenshot 2024-05-30 at 1 58 36 AM" src="https://github.com/mar19a/EmmanuelManagement/assets/84360137/d1104bac-e418-4b8c-a012-a117df0ac3bf">
+<img width="1440" alt="Screenshot 2024-05-30 at 1 58 43 AM" src="https://github.com/mar19a/EmmanuelManagement/assets/84360137/bc23eac3-1dd4-4ee3-b6ca-dde25264add6">
+<img width="1440" alt="Screenshot 2024-05-30 at 1 58 53 AM" src="https://github.com/mar19a/EmmanuelManagement/assets/84360137/0e2d84d7-9700-4f24-a131-5066dbcdb42f">
+
 ### Contributing
 
 Contributions are welcome! Please open an issue or submit a pull request for any improvements or bug fixes.
